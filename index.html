@@ -11,13 +11,13 @@
 <meta property="og:site_name" content="CS Unit 1 · CFBC">
 <meta name="description" content="Build combinational circuits from truth tables using the SCAN-MARK-WRITE-SUM-DRAW method.">
 <meta name="theme-color" content="#E04B2F">
-<meta name="lesson:duration"   content="75 min">
+<meta name="lesson:duration"   content="90 min">
 <meta name="lesson:difficulty" content="Core">
 <meta name="lesson:objectives" content="7">
 <meta name="lesson:questions"  content="30">
-<meta name="lesson:sections"   content="9">
+<meta name="lesson:sections"   content="10">
 <meta name="lesson:topics"     content="AND,OR,NOT,NAND,NOR,XOR,XNOR,Combinational circuits,Sum of products">
-<meta name="lesson:activities" content="Gate bench,Truth table dojo,Circuit builder,Spot the bug,Unit test">
+<meta name="lesson:activities" content="Gate bench,Truth table dojo,Circuit builder,Logic.ly lab,Spot the bug,Unit test">
 <meta name="lesson:updated"    content="2026-09-15">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -257,6 +257,7 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
   <a href="#gates">The gates</a>
   <a href="#dojo">Truth table dojo</a>
   <a href="#builder">Circuit builder</a>
+  <a href="#lab">Logic.ly lab</a>
   <a href="#reverse">Working backwards</a>
   <a href="#bug">Spot the bug</a>
   <a href="#test">Unit test</a>
@@ -396,6 +397,72 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
       <button class="btn ghost" id="bBack">Back a step</button>
       <button class="btn ghost" id="bReset">Restart exercise</button>
     </div>
+  </div>
+</div></section>
+
+<!-- ============================ LOGIC.LY LAB ============================ -->
+<section id="lab"><div class="wrap">
+  <h2>Build it for real, in Logic.ly</h2>
+  <p class="sub">Everything so far has been on this page, and this page already knows the right answer — it has
+  been quietly checking your work the whole time. Logic.ly does not know anything. It just simulates real gates,
+  the way a chip would. If your wiring is wrong, nothing warns you; the lamp simply lights up wrong, and working
+  out why is a more useful skill than getting it right on a page that is helping you.</p>
+
+  <div class="analogy">
+    <h4>Reading about a bicycle is not riding one</h4>
+    <p>You can recite SCAN-MARK-WRITE-SUM-DRAW word for word and still freeze the first time somebody hands you an
+    empty canvas and says "build it." The gap between knowing the steps and doing them with your own hands only
+    closes one way. Logic.ly is free, it runs in the browser, and it is the same style of software real engineers
+    use to test a design before it costs them an actual chip.</p>
+  </div>
+
+  <div class="panel" style="border-left:4px solid var(--violet)">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:4px">
+      <h3 style="margin:0">Lab 1 — rebuild the circuit you already solved</h3>
+      <a class="btn accent" href="https://logic.ly/" target="_blank" rel="noopener">Open Logic.ly ↗</a>
+    </div>
+    <p style="font-size:.95rem;color:var(--ink2);margin:10px 0 18px">Back in the dojo you filled in the truth table
+    for <span class="mono">Z = A'B + AB'</span> by hand. Now wire the actual gates and watch the same answer come
+    out of a simulated circuit instead of your head.</p>
+
+    <ol style="margin:0 0 18px;padding-left:20px;color:var(--ink2);font-size:.96rem">
+      <li>Open Logic.ly. Drag out two <b>input switches</b> onto the canvas. Rename them <span class="mono">A</span>
+      and <span class="mono">B</span> — double-click a component's label to rename it.</li>
+      <li>Drag out two <b>NOT</b> gates. Wire A into the first, B into the second. Their outputs are A' and B'.</li>
+      <li>Drag out two <b>AND</b> gates. Feed the first one A' and B. Feed the second one A and B'.</li>
+      <li>Drag out one <b>OR</b> gate. Feed it the outputs of both AND gates.</li>
+      <li>Drag out one <b>output light</b> and wire it to the OR gate.</li>
+      <li>Flip A and B through all four combinations. Fill in what the lamp actually shows below.</li>
+    </ol>
+
+    <div class="two">
+      <div id="labTable1"></div>
+      <div>
+        <p style="font-size:.9rem;color:var(--ink2);margin-bottom:10px">Click a cell to cycle it 0 → 1 → blank,
+        same as the dojo above.</p>
+        <div class="btnrow" style="margin-top:0">
+          <button class="btn accent" id="lab1Check">Check my build</button>
+          <button class="btn ghost" id="lab1Clear">Clear</button>
+        </div>
+        <div class="feedback" id="lab1Fb"></div>
+      </div>
+    </div>
+
+    <div class="note win"><b>If every row matches, look at what you built.</b> Two AND gates, one OR gate, two NOT
+    gates — and the result behaves exactly like the XOR gate from the very first gate grid. XOR was never a fourth
+    kind of gate. It was AND, OR and NOT the whole time, wired one particular way. Every "special" gate on a real
+    chip is the same trick.</div>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-bottom:10px">Lab 2 — catch your own bug on purpose</h3>
+    <p style="font-size:.95rem;color:var(--ink2);margin-bottom:14px">Stay in the same Logic.ly file. Unplug the wire
+    going into the <em>second</em> AND gate's A input and plug it into A' instead — a one-wire mistake that is very
+    easy to make by accident and very hard to spot by eye.</p>
+    <div class="note warn" style="margin:0"><b>Predict before you flip anything.</b> With that wire moved, what
+    should happen when A=1 and B=1? Work it out on paper first, then set the switches and see if Logic.ly agrees
+    with you. If it does not, the bug is not in Logic.ly — read your own wiring again, one gate at a time, the way
+    "Working backwards" below teaches. Predicting first and only then checking is worth more than this one circuit.</div>
   </div>
 </div></section>
 
@@ -1314,6 +1381,47 @@ $('#reviewAll').addEventListener('click', () => {
     </div>`).join('');
   $('#reviewBox').scrollIntoView({block: 'start'});
 });
+
+/* =================================================================
+   LOGIC.LY LAB — self-check table (Lab 1: Z = A'B + AB', i.e. XOR)
+   ================================================================= */
+let lab1Ans = Array(4).fill(null);
+function lab1Render() {
+  $('#labTable1').innerHTML = ttHTML(['A', 'B'], lab1Ans, {editable: true});
+}
+$('#labTable1').addEventListener('click', e => {
+  const td = e.target.closest('[data-edit]'); if (!td) return;
+  const i = +td.dataset.edit;
+  lab1Ans[i] = lab1Ans[i] === null ? 0 : (lab1Ans[i] === 0 ? 1 : null);
+  td.textContent = lab1Ans[i] === null ? '·' : lab1Ans[i];
+});
+$('#lab1Clear').addEventListener('click', () => {
+  lab1Ans = Array(4).fill(null); lab1Render(); $('#lab1Fb').className = 'feedback';
+});
+$('#lab1Check').addEventListener('click', () => {
+  const rows = rowsFor(2);
+  const truth = rows.map(([a, b]) => a ^ b);
+  const blanks = lab1Ans.filter(x => x === null).length;
+  const fb = $('#lab1Fb');
+  if (blanks) {
+    fb.className = 'feedback show bad';
+    fb.innerHTML = `<b>${blanks} row${blanks > 1 ? 's' : ''} still blank.</b> Read the lamp in Logic.ly for that
+      exact A, B combination and fill it in.`;
+    return;
+  }
+  const wrong = truth.map((t, i) => (lab1Ans[i] === t ? -1 : i)).filter(i => i >= 0);
+  if (!wrong.length) {
+    fb.className = 'feedback show good';
+    fb.innerHTML = `<b>Matches on all 4 rows.</b> That is a correct build of Z = A'B + AB' — and, as the note
+      above says, a correct build of XOR.`;
+  } else {
+    fb.className = 'feedback show bad';
+    fb.innerHTML = `<b>${wrong.length} row${wrong.length > 1 ? 's' : ''} disagree with the target.</b> The most
+      common cause is one AND gate wired to the wrong pair — check that AND1 gets A' and B (not A and B), and
+      AND2 gets A and B' (not A' and B'). Fix the wire in Logic.ly, re-test, and check again.`;
+  }
+});
+lab1Render();
 </script>
 </body>
 </html>
