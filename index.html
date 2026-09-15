@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logic Gates &amp; Truth Tables — CS Unit 1</title>
+
+<!-- ===== lesson manifest: read by the hub's sync script ===== -->
+<meta property="og:title" content="Logic Gates &amp; Truth Tables">
+<meta property="og:description" content="The five-step drill for turning any truth table into a working circuit — and back again. Foundation for everything that follows.">
+<meta property="og:site_name" content="CS Unit 1 · CFBC">
+<meta name="description" content="Build combinational circuits from truth tables using the SCAN-MARK-WRITE-SUM-DRAW method.">
+<meta name="theme-color" content="#E04B2F">
+<meta name="lesson:duration"   content="75 min">
+<meta name="lesson:difficulty" content="Core">
+<meta name="lesson:objectives" content="7">
+<meta name="lesson:questions"  content="30">
+<meta name="lesson:sections"   content="9">
+<meta name="lesson:topics"     content="AND,OR,NOT,NAND,NOR,XOR,XNOR,Combinational circuits,Sum of products">
+<meta name="lesson:activities" content="Gate bench,Truth table dojo,Circuit builder,Spot the bug,Unit test">
+<meta name="lesson:updated"    content="2026-09-15">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDEFF2; --board:#FFFFFF; --ink:#16202C; --ink2:#556577; --ink3:#8996A5;
+  --line:#D2D9E1; --hot:#E04B2F; --amber:#F2A93B; --violet:#5A4B9C; --mint:#118D77;
+  --lowbg:#DFE5EC; --hibg:#FFE9C7;
+  --shadow:0 1px 0 rgba(22,32,44,.06), 0 12px 28px -18px rgba(22,32,44,.5);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{animation-duration:.01ms!important; transition-duration:.01ms!important} }
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Work Sans",system-ui,sans-serif; font-size:17px; line-height:1.65;
+  background-image:linear-gradient(rgba(22,32,44,.03) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(22,32,44,.03) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+h1,h2,h3,h4,.disp{font-family:"Space Grotesk",system-ui,sans-serif; line-height:1.12; letter-spacing:-.02em; margin:0}
+p{margin:0 0 1em}
+.wrap{max-width:900px; margin:0 auto; padding:0 22px}
+.mono{font-family:"JetBrains Mono",monospace}
+:focus-visible{outline:3px solid var(--violet); outline-offset:3px; border-radius:4px}
+button{font:inherit}
+
+/* ---------- nav ---------- */
+nav.top{position:sticky; top:0; z-index:50; background:rgba(237,239,242,.93); backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex; gap:4px; overflow-x:auto; padding-top:9px; padding-bottom:9px; scrollbar-width:thin}
+nav.top a{
+  white-space:nowrap; text-decoration:none; color:var(--ink2); font-size:.84rem; font-weight:500;
+  padding:6px 11px; border-radius:7px;
+}
+nav.top a:hover{background:var(--board); color:var(--ink)}
+nav.top a.home{color:var(--hot); font-weight:600}
+
+/* ---------- hero ---------- */
+.hero{padding:44px 0 14px}
+.eyebrow{font-family:"JetBrains Mono",monospace; font-size:.78rem; color:var(--hot); font-weight:700}
+.hero h1{font-size:clamp(2.2rem,6.4vw,3.8rem); font-weight:700; margin:12px 0 0}
+.hero .lede{max-width:56ch; color:var(--ink2); font-size:1.08rem; margin-top:16px}
+
+/* ---------- bench (hero gate) ---------- */
+.bench{
+  background:var(--board); border:1px solid var(--line); border-radius:16px; padding:22px;
+  box-shadow:var(--shadow); margin:26px 0 0;
+}
+.bench-grid{display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:center}
+.switches{display:flex; flex-direction:column; gap:14px}
+.sw{display:flex; align-items:center; gap:10px}
+.sw-label{font-family:"JetBrains Mono",monospace; font-weight:700; width:1.4em}
+.toggle{
+  width:62px; height:32px; border-radius:999px; border:2px solid var(--line);
+  background:var(--lowbg); position:relative; cursor:pointer; padding:0; transition:background .16s, border-color .16s;
+}
+.toggle::after{
+  content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%;
+  background:var(--board); box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .16s;
+}
+.toggle[aria-pressed="true"]{background:var(--amber); border-color:#D89321}
+.toggle[aria-pressed="true"]::after{transform:translateX(30px)}
+.sw-val{font-family:"JetBrains Mono",monospace; font-weight:700; color:var(--ink3); width:1ch}
+.toggle[aria-pressed="true"] + .sw-val{color:var(--ink)}
+.lamp{
+  width:64px; height:64px; border-radius:50%; border:3px solid var(--line); background:var(--lowbg);
+  display:grid; place-items:center; font-family:"JetBrains Mono",monospace; font-weight:700; font-size:1.5rem;
+  color:var(--ink3); transition:background .16s, box-shadow .16s, color .16s, border-color .16s;
+}
+.lamp.on{background:var(--amber); border-color:#D89321; color:#2A1B00; box-shadow:0 0 0 8px rgba(242,169,59,.22)}
+.bench svg{width:100%; max-width:230px; height:auto; display:block; margin:0 auto}
+.bench-foot{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:18px; border-top:1px solid var(--line); padding-top:14px}
+select.gatepick{
+  border:1px solid var(--line); background:var(--paper); border-radius:8px; padding:8px 11px;
+  font:inherit; font-size:.9rem; color:var(--ink);
+}
+.bench-read{font-family:"JetBrains Mono",monospace; font-size:.92rem; color:var(--ink2)}
+
+/* ---------- sections ---------- */
+section{padding:52px 0 8px}
+section > .wrap > h2{font-size:clamp(1.6rem,4vw,2.2rem); margin-bottom:6px}
+.sub{color:var(--ink2); max-width:60ch; margin-bottom:26px}
+.rule{height:1px; background:var(--line); margin:0}
+
+/* ---------- panels ---------- */
+.panel{background:var(--board); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:var(--shadow); margin-bottom:18px}
+.note{
+  border-left:4px solid var(--violet); background:rgba(90,75,156,.06);
+  border-radius:0 10px 10px 0; padding:14px 18px; margin:18px 0;
+}
+.note b{font-family:"Space Grotesk",sans-serif}
+.warn{border-left-color:var(--amber); background:#FFF6E6}
+.win{border-left-color:var(--mint); background:rgba(17,141,119,.07)}
+
+/* ---------- gate cards ---------- */
+.gates{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px}
+.gate{background:var(--board); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow)}
+.gate h3{font-size:1.15rem; display:flex; align-items:center; gap:8px; margin-bottom:4px}
+.gate .sym{font-family:"JetBrains Mono",monospace; color:var(--hot); font-size:1rem}
+.gate .expr{font-family:"JetBrains Mono",monospace; font-size:.86rem; color:var(--violet); margin-bottom:8px}
+.gate .why{font-size:.9rem; color:var(--ink2); margin-bottom:12px}
+.gate svg{display:block; margin:0 auto 10px; height:62px; width:auto}
+table.tt{border-collapse:collapse; width:100%; font-family:"JetBrains Mono",monospace; font-size:.88rem}
+table.tt th, table.tt td{border:1px solid var(--line); padding:5px 6px; text-align:center}
+table.tt th{background:var(--paper); font-weight:700; font-size:.78rem; color:var(--ink2)}
+table.tt td.out{font-weight:700}
+table.tt tr.hot td{background:var(--hibg)}
+table.tt tr.pick{cursor:pointer}
+table.tt tr.pick:hover td{background:#F3F6FA}
+table.tt tr.sel td{background:rgba(17,141,119,.16); box-shadow:inset 3px 0 0 var(--mint)}
+table.tt tr.bad td{background:rgba(224,75,47,.14); box-shadow:inset 3px 0 0 var(--hot)}
+
+/* ---------- buttons ---------- */
+.btn{
+  border:1px solid var(--ink); background:var(--ink); color:#fff; border-radius:9px;
+  padding:10px 18px; font-size:.92rem; font-weight:600; cursor:pointer;
+}
+.btn:hover{background:#0D1620}
+.btn.ghost{background:transparent; color:var(--ink); border-color:var(--line)}
+.btn.ghost:hover{background:var(--paper)}
+.btn.accent{background:var(--hot); border-color:var(--hot)}
+.btn.accent:hover{background:#C63E25}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btnrow{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:16px}
+
+/* ---------- chips ---------- */
+.chip{
+  display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line); background:var(--paper);
+  border-radius:8px; padding:7px 12px; font-family:"JetBrains Mono",monospace; font-size:.9rem;
+  cursor:grab; user-select:none;
+}
+.chip:active{cursor:grabbing}
+.chip.on{background:var(--ink); color:#fff; border-color:var(--ink)}
+.chip.ok{background:rgba(17,141,119,.14); border-color:var(--mint); color:#0B5F50}
+.chip.no{background:rgba(224,75,47,.12); border-color:var(--hot); color:#8E2A17}
+.chip .x{
+  border:0; background:rgba(0,0,0,.12); color:inherit; border-radius:50%; width:18px; height:18px;
+  line-height:1; font-size:.7rem; cursor:pointer; display:grid; place-items:center; padding:0;
+}
+.chiprow{display:flex; gap:8px; flex-wrap:wrap}
+
+/* ---------- builder ---------- */
+.steps{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px}
+.stepbtn{
+  flex:1 1 130px; text-align:left; border:1px solid var(--line); background:var(--board);
+  border-radius:10px; padding:10px 12px; cursor:pointer; color:var(--ink3);
+}
+.stepbtn b{display:block; font-family:"Space Grotesk",sans-serif; font-size:.95rem; color:inherit}
+.stepbtn small{font-size:.72rem}
+.stepbtn[data-state="active"]{border-color:var(--ink); background:var(--ink); color:#fff}
+.stepbtn[data-state="done"]{border-color:var(--mint); color:var(--mint); background:rgba(17,141,119,.07)}
+.stepbtn:disabled{cursor:not-allowed; opacity:.55}
+.stage{min-height:120px}
+.stage h4{font-size:1.1rem; margin-bottom:6px}
+.stage .task{color:var(--ink2); font-size:.96rem; margin-bottom:16px}
+.two{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px}
+@media (max-width:700px){ .two{grid-template-columns:1fr} .bench-grid{grid-template-columns:1fr; gap:14px} }
+.feedback{margin-top:16px; padding:12px 16px; border-radius:10px; font-size:.94rem; display:none}
+.feedback.show{display:block}
+.feedback.good{background:rgba(17,141,119,.1); border-left:4px solid var(--mint)}
+.feedback.bad{background:rgba(224,75,47,.09); border-left:4px solid var(--hot)}
+.dropzone{
+  min-height:58px; border:2px dashed var(--line); border-radius:10px; padding:10px;
+  display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:var(--paper);
+}
+.dropzone.over{border-color:var(--hot); background:#FFF1ED}
+.dropzone:empty::before{content:"Drag the terms here"; color:var(--ink3); font-size:.88rem}
+.plus{font-family:"JetBrains Mono",monospace; font-weight:700; color:var(--ink3)}
+.exprbar{
+  font-family:"JetBrains Mono",monospace; font-size:1.05rem; background:var(--ink); color:#fff;
+  border-radius:10px; padding:14px 16px; overflow-x:auto; white-space:nowrap;
+}
+.exprbar .v{color:var(--amber)}
+.markrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:10px 0; border-bottom:1px solid var(--line)}
+.markrow:last-child{border-bottom:0}
+.markrow .bits{font-family:"JetBrains Mono",monospace; color:var(--ink3); font-size:.85rem; min-width:5ch}
+.lit{
+  border:1px solid var(--line); background:var(--paper); border-radius:8px; padding:6px 12px;
+  font-family:"JetBrains Mono",monospace; font-size:.92rem; cursor:pointer; min-width:3.2em;
+}
+.lit[data-p="1"]{background:var(--ink); color:#fff; border-color:var(--ink)}
+.wirebox{display:grid; gap:12px}
+.wire{display:flex; gap:10px; align-items:center; flex-wrap:wrap; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:10px 12px}
+.wire .tag{font-family:"JetBrains Mono",monospace; font-weight:700; font-size:.85rem; min-width:7em; color:var(--violet)}
+.scope{width:100%; overflow-x:auto}
+.scope svg{display:block; min-width:520px; max-width:100%; height:auto}
+.verify{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px}
+@media (max-width:560px){ .verify{grid-template-columns:1fr} }
+.exsel{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px}
+.exbtn{border:1px solid var(--line); background:var(--board); border-radius:9px; padding:8px 14px; font-size:.88rem; cursor:pointer}
+.exbtn[aria-pressed="true"]{background:var(--violet); color:#fff; border-color:var(--violet)}
+.exbtn .tick{color:var(--mint)}
+.exbtn[aria-pressed="true"] .tick{color:#C9F0E6}
+
+/* ---------- test ---------- */
+.testhead{display:flex; gap:18px; align-items:center; flex-wrap:wrap; margin-bottom:18px}
+.meter{flex:1 1 180px; height:9px; background:var(--lowbg); border-radius:999px; overflow:hidden; min-width:140px}
+.meter i{display:block; height:100%; background:var(--hot); width:0; transition:width .3s}
+.qcard{background:var(--board); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:var(--shadow)}
+.qnum{font-family:"JetBrains Mono",monospace; font-size:.78rem; color:var(--ink3)}
+.qpart{display:inline-block; font-size:.72rem; background:rgba(90,75,156,.1); color:var(--violet); border-radius:5px; padding:2px 8px; margin-left:8px}
+.qtext{font-size:1.12rem; font-family:"Space Grotesk",sans-serif; margin:10px 0 6px; line-height:1.35}
+.qextra{margin:12px 0}
+.opts{display:grid; gap:9px; margin-top:16px}
+.opt{
+  text-align:left; border:1px solid var(--line); background:var(--paper); border-radius:10px;
+  padding:12px 15px; cursor:pointer; display:flex; gap:11px; align-items:flex-start; font-size:.97rem;
+}
+.opt:hover{border-color:var(--ink3)}
+.opt .k{font-family:"JetBrains Mono",monospace; font-weight:700; color:var(--ink3)}
+.opt.correct{background:rgba(17,141,119,.12); border-color:var(--mint)}
+.opt.wrong{background:rgba(224,75,47,.1); border-color:var(--hot)}
+.opt:disabled{cursor:default}
+.scorecard{text-align:center; padding:34px 22px}
+.bigscore{font-family:"Space Grotesk",sans-serif; font-size:4.2rem; font-weight:700; line-height:1}
+.grade{font-family:"JetBrains Mono",monospace; font-size:1.1rem; color:var(--ink2)}
+.breakdown{display:grid; gap:10px; max-width:460px; margin:26px auto 0; text-align:left}
+.bd{display:flex; align-items:center; gap:12px; font-size:.92rem}
+.bd .lbl{flex:1 1 auto}
+.bd .bar{width:110px; height:8px; background:var(--lowbg); border-radius:999px; overflow:hidden}
+.bd .bar i{display:block; height:100%; background:var(--mint)}
+.bd .n{font-family:"JetBrains Mono",monospace; font-size:.84rem; color:var(--ink2); min-width:3.6em; text-align:right}
+
+footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; color:var(--ink3); font-size:.86rem}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+
+<nav class="top"><div class="wrap">
+  <a class="home" href="https://enoete.github.io/compsciu1_hub/">← Unit 1 hub</a>
+  <a href="#gates">The gates</a>
+  <a href="#dojo">Truth table dojo</a>
+  <a href="#builder">Circuit builder</a>
+  <a href="#reverse">Working backwards</a>
+  <a href="#bug">Spot the bug</a>
+  <a href="#test">Unit test</a>
+</div></nav>
+
+<!-- ============================ HERO ============================ -->
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">TOPIC 02 · COMPUTER ARCHITECTURE</div>
+  <h1>Logic gates &amp; truth tables</h1>
+  <p class="lede">A computer has no idea what a number is. It has switches. Millions of them, each either on or off,
+  wired into little decision-makers called gates. Everything else — your music, your bank balance, this page — is built
+  on top of that. Flip the switches below and watch a gate think.</p>
+
+  <div class="bench">
+    <div class="bench-grid">
+      <div class="switches">
+        <div class="sw"><span class="sw-label">A</span>
+          <button class="toggle" id="hA" aria-pressed="false" aria-label="Input A"></button><span class="sw-val" id="hAv">0</span></div>
+        <div class="sw" id="hBwrap"><span class="sw-label">B</span>
+          <button class="toggle" id="hB" aria-pressed="false" aria-label="Input B"></button><span class="sw-val" id="hBv">0</span></div>
+      </div>
+      <div id="heroSvg"></div>
+      <div style="display:grid;place-items:center;gap:8px">
+        <div class="lamp" id="hLamp">0</div>
+        <span style="font-size:.78rem;color:var(--ink3)">output</span>
+      </div>
+    </div>
+    <div class="bench-foot">
+      <label for="heroGate" style="font-size:.88rem;color:var(--ink2)">Gate</label>
+      <select class="gatepick" id="heroGate">
+        <option value="AND">AND</option><option value="OR">OR</option><option value="NOT">NOT</option>
+        <option value="NAND">NAND</option><option value="NOR">NOR</option>
+        <option value="XOR">XOR</option><option value="XNOR">XNOR</option>
+      </select>
+      <span class="bench-read" id="heroRead"></span>
+    </div>
+  </div>
+</div></header>
+
+<!-- ============================ GATES ============================ -->
+<section id="gates"><div class="wrap">
+  <h2>The seven gates</h2>
+  <p class="sub">Three of these are the real building blocks — AND, OR and NOT. The other four are shortcuts built from
+  those three, common enough to earn their own symbols. Click any row of a truth table to send those inputs through the gate.</p>
+  <div class="gates" id="gateGrid"></div>
+
+  <div class="note"><b>The one habit that saves you.</b> A gate is defined by its truth table, not by its shape.
+  If you ever forget what NOR does, don't try to remember the picture — write the OR table, then flip every output. Same for NAND.
+  XNOR is XOR flipped. Four gates, one trick.</div>
+</div></section>
+
+<!-- ============================ DOJO ============================ -->
+<section id="dojo"><div class="wrap">
+  <h2>Truth table dojo</h2>
+  <p class="sub">Before you can build circuits from truth tables, you have to be fast at filling them in.
+  Click a cell to flip it between 0 and 1. You get the expression — you produce the output column.</p>
+
+  <div class="panel">
+    <div class="exsel" id="dojoSel"></div>
+    <div class="two">
+      <div>
+        <div class="exprbar" id="dojoExpr"></div>
+        <p style="font-size:.88rem;color:var(--ink2);margin-top:12px" id="dojoHint"></p>
+      </div>
+      <div><div id="dojoTable"></div></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn accent" id="dojoCheck">Check my column</button>
+      <button class="btn ghost" id="dojoClear">Clear</button>
+      <button class="btn ghost" id="dojoNext">Next expression</button>
+    </div>
+    <div class="feedback" id="dojoFb"></div>
+  </div>
+
+  <div class="note warn"><b>Reading order matters.</b> <span class="mono">A'B</span> means
+  <span class="mono">(NOT A) AND B</span> — the prime binds tight to its own letter and nothing else.
+  It does <em>not</em> mean NOT (A AND B); that would be written <span class="mono">(AB)'</span> with the bracket.</div>
+</div></section>
+
+<!-- ============================ BUILDER ============================ -->
+<section id="builder"><div class="wrap">
+  <h2>The circuit builder</h2>
+  <p class="sub">This is the skill the exam keeps asking for: someone hands you a truth table, you hand back a circuit.
+  There is a drill that works every single time. Five steps, same order, no exceptions.</p>
+
+  <div class="panel" style="border-left:4px solid var(--hot)">
+    <h3 style="margin-bottom:14px">SCAN · MARK · WRITE · SUM · DRAW</h3>
+    <ol style="margin:0;padding-left:20px;color:var(--ink2);font-size:.97rem">
+      <li><b style="color:var(--ink)">Scan</b> the output column. Circle every row where the output is <span class="mono">1</span>. Ignore the 0 rows completely — they never appear in your answer.</li>
+      <li><b style="color:var(--ink)">Mark</b> each circled row. For that row: an input of <span class="mono">1</span> stays a plain letter, an input of <span class="mono">0</span> gets a prime. <em>One means plain, zero means prime.</em></li>
+      <li><b style="color:var(--ink)">Write</b> each marked row as a single AND term. Three inputs means three letters multiplied together.</li>
+      <li><b style="color:var(--ink)">Sum</b> all those terms with OR (<span class="mono">+</span>). That is your Boolean function, in sum-of-products form.</li>
+      <li><b style="color:var(--ink)">Draw</b> it: inverters first, then one AND gate per term, then one OR gate collecting them all.</li>
+    </ol>
+    <div class="note win" style="margin-bottom:0"><b>Why it always works.</b> Each 1-row is a situation that should switch the output on.
+    An AND term is a detector for exactly one situation — it fires for that row and no other. OR them together and you have built a circuit that says
+    "switch on if situation 1 happens, <em>or</em> situation 2, <em>or</em> situation 3." That is literally what the truth table asked for.</div>
+  </div>
+
+  <div class="exsel" id="exSel"></div>
+
+  <div class="panel">
+    <div style="display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px">
+      <h3 id="exTitle"></h3><span class="mono" style="font-size:.82rem;color:var(--ink3)" id="exVars"></span>
+    </div>
+    <p class="sub" id="exStory" style="margin-bottom:20px"></p>
+
+    <div class="steps" id="stepBar"></div>
+    <div class="stage" id="stage"></div>
+    <div class="feedback" id="bFb"></div>
+    <div class="btnrow">
+      <button class="btn accent" id="bCheck">Check this step</button>
+      <button class="btn ghost" id="bBack">Back a step</button>
+      <button class="btn ghost" id="bReset">Restart exercise</button>
+    </div>
+  </div>
+</div></section>
+
+<!-- ============================ REVERSE ============================ -->
+<section id="reverse"><div class="wrap">
+  <h2>Working backwards</h2>
+  <p class="sub">Exams run the drill in both directions. Given a circuit, name the function. Given a function, produce the table.
+  Same knowledge, read the other way.</p>
+
+  <div class="panel">
+    <h3 style="margin-bottom:6px">Read the circuit</h3>
+    <p style="font-size:.95rem;color:var(--ink2)">Trace from the inputs on the left. Label the output of every gate as you pass it, then read the final label.</p>
+    <div class="scope" id="revCircuit"></div>
+    <div class="chiprow" id="revOpts" style="margin-top:18px"></div>
+    <div class="feedback" id="revFb"></div>
+    <div class="btnrow"><button class="btn ghost" id="revNext">Another circuit</button></div>
+  </div>
+
+  <div class="note"><b>Labelling as you go is the whole technique.</b> Students lose marks by trying to hold three gate outputs in their head at once.
+  Write <span class="mono">A'</span> on the wire leaving the inverter. Write <span class="mono">A'C</span> on the wire leaving the AND gate.
+  By the time you reach the last gate there is nothing left to work out.</div>
+</div></section>
+
+<!-- ============================ SPOT THE BUG ============================ -->
+<section id="bug"><div class="wrap">
+  <h2>Spot the bug</h2>
+  <p class="sub">Here is a worked example exactly as it appears in a textbook. The function and the truth table beside it do not agree.
+  Find the rows that are wrong before you reveal the answer.</p>
+
+  <div class="panel">
+    <div class="two">
+      <div>
+        <div class="exprbar">R = A'·C + D</div>
+        <p style="font-size:.93rem;color:var(--ink2);margin-top:14px">The printed table claims these outputs. Click every row you believe is wrong.</p>
+        <div class="btnrow">
+          <button class="btn accent" id="bugCheck">Check my answer</button>
+          <button class="btn ghost" id="bugShow">Show the correct table</button>
+        </div>
+      </div>
+      <div id="bugTable"></div>
+    </div>
+    <div class="feedback" id="bugFb"></div>
+  </div>
+</div></section>
+
+<!-- ============================ TEST ============================ -->
+<section id="test"><div class="wrap">
+  <h2>Unit test</h2>
+  <p class="sub">Thirty questions across four parts. Nothing is recorded anywhere — this is yours to fail as many times as you need.
+  Every answer comes with a worked explanation, and at the end you get a breakdown by part so you know exactly what to go back to.</p>
+
+  <div id="testIntro" class="panel">
+    <h3 style="margin-bottom:10px">Before you start</h3>
+    <ul style="color:var(--ink2);font-size:.96rem;margin:0 0 6px;padding-left:20px">
+      <li><b>Part A</b> — gates and their truth tables (8 questions)</li>
+      <li><b>Part B</b> — reading and evaluating Boolean expressions (7)</li>
+      <li><b>Part C</b> — truth table to Boolean function (8)</li>
+      <li><b>Part D</b> — circuits and applications (7)</li>
+    </ul>
+    <p style="font-size:.9rem;color:var(--ink3);margin-top:14px">Have paper beside you. Several questions are far easier with a scribbled table than in your head.</p>
+    <div class="btnrow"><button class="btn accent" id="testStart">Start the test</button></div>
+  </div>
+
+  <div id="testRun" class="hide">
+    <div class="testhead">
+      <span class="mono" id="testPos"></span>
+      <div class="meter"><i id="testMeter"></i></div>
+      <span class="mono" id="testScore"></span>
+    </div>
+    <div class="qcard" id="qcard"></div>
+    <div class="btnrow"><button class="btn ghost" id="testQuit">End test early</button></div>
+  </div>
+
+  <div id="testDone" class="hide">
+    <div class="panel scorecard">
+      <div class="bigscore" id="doneScore"></div>
+      <div class="grade" id="doneGrade"></div>
+      <p style="max-width:44ch;margin:18px auto 0;color:var(--ink2)" id="doneMsg"></p>
+      <div class="breakdown" id="doneBreak"></div>
+      <div class="btnrow" style="justify-content:center">
+        <button class="btn accent" id="retryWrong">Retry only what I missed</button>
+        <button class="btn ghost" id="retryAll">Start over</button>
+        <button class="btn ghost" id="reviewAll">Review every question</button>
+      </div>
+    </div>
+    <div id="reviewBox"></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  Computer Science Unit 1 · Clarence Fitzroy Bryant College · Topic 2 of the unit.
+  Built for the classroom — nothing you do on this page is saved or sent anywhere.
+</div></footer>
+
+<script>
+/* =================================================================
+   Logic Gates & Truth Tables — interactive engine
+   ================================================================= */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------------- gate definitions ---------------- */
+const GATES = {
+  AND : {n:2, sym:'·',  expr:'Z = A · B',      f:(a,b)=>a&b,
+         why:'Both conditions, no excuses. The chest opens only with the key AND the scroll.'},
+  OR  : {n:2, sym:'+',  expr:'Z = A + B',      f:(a,b)=>a|b,
+         why:'Either will do. Dessert if you finish the vegetables OR the main.'},
+  NOT : {n:1, sym:"'",  expr:"Z = A'",         f:a=>a?0:1,
+         why:'Whatever goes in, the opposite comes out. The alarm sounds when the door is NOT closed.'},
+  NAND: {n:2, sym:'↑',  expr:'Z = (A · B)\'',  f:(a,b)=>(a&b)?0:1,
+         why:'AND with the answer flipped. You can game unless there is homework AND a dirty room.'},
+  NOR : {n:2, sym:'↓',  expr:'Z = (A + B)\'',  f:(a,b)=>(a|b)?0:1,
+         why:'OR with the answer flipped. Output is on only when everything is off.'},
+  XOR : {n:2, sym:'⊕',  expr:'Z = A ⊕ B',      f:(a,b)=>a^b,
+         why:'One or the other, never both. Soup or salad — pick one.'},
+  XNOR: {n:2, sym:'⊙',  expr:'Z = (A ⊕ B)\'',  f:(a,b)=>(a^b)?0:1,
+         why:'On when the two inputs agree. Both ready, or both not ready.'}
+};
+
+/* ---------------- gate SVG shapes ---------------- */
+function gateBody(type, x, y, w, h) {
+  const bubble = /^(NAND|NOR|XNOR|NOT)$/.test(type);
+  let d = '', extra = '';
+  if (type === 'AND' || type === 'NAND') {
+    d = `M${x},${y} h${w*0.45} a${h/2},${h/2} 0 0 1 0,${h} h-${w*0.45} z`;
+  } else if (type === 'NOT') {
+    d = `M${x},${y} L${x+w},${y+h/2} L${x},${y+h} z`;
+  } else { /* OR family */
+    d = `M${x},${y} Q${x+w*0.72},${y} ${x+w},${y+h/2} Q${x+w*0.72},${y+h} ${x},${y+h} Q${x+w*0.32},${y+h/2} ${x},${y} z`;
+    if (type === 'XOR' || type === 'XNOR')
+      extra += `<path d="M${x-7},${y} Q${x+w*0.25},${y+h/2} ${x-7},${y+h}" fill="none" stroke="currentColor" stroke-width="2.5"/>`;
+  }
+  if (bubble) extra += `<circle cx="${x+w+5}" cy="${y+h/2}" r="5" fill="var(--board)" stroke="currentColor" stroke-width="2.5"/>`;
+  return {d, extra, outX: x + w + (bubble ? 10 : 0)};
+}
+
+function gateIcon(type, colour) {
+  const w = 46, h = 40, x = 16, y = 6;
+  const g = gateBody(type, x, y, w, h);
+  const ins = GATES[type].n === 1
+    ? [`<line x1="0" y1="${y+h/2}" x2="${x}" y2="${y+h/2}"/>`]
+    : [`<line x1="0" y1="${y+h*0.28}" x2="${x}" y2="${y+h*0.28}"/>`,
+       `<line x1="0" y1="${y+h*0.72}" x2="${x}" y2="${y+h*0.72}"/>`];
+  return `<svg viewBox="-2 0 ${g.outX+26} 52" style="color:${colour||'var(--hot)'}" role="img" aria-label="${type} gate symbol">
+    <g stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round">${ins.join('')}
+    <line x1="${g.outX}" y1="${y+h/2}" x2="${g.outX+22}" y2="${y+h/2}"/></g>
+    <path d="${g.d}" fill="currentColor" opacity=".92"/>${g.extra}</svg>`;
+}
+
+/* ---------------- truth table renderer ---------------- */
+function rowsFor(n) {
+  const out = [];
+  for (let i = 0; i < (1 << n); i++)
+    out.push([...Array(n)].map((_, j) => (i >> (n - 1 - j)) & 1));
+  return out;
+}
+function ttHTML(vars, outs, opts = {}) {
+  const n = vars.length, rows = rowsFor(n);
+  const head = vars.map(v => `<th>${esc(v)}</th>`).join('') + `<th>${esc(opts.outName || 'Z')}</th>`;
+  const body = rows.map((bits, i) => {
+    const cls = [opts.pick ? 'pick' : '', (opts.hot === i) ? 'hot' : '',
+                 (opts.sel || []).includes(i) ? 'sel' : '', (opts.bad || []).includes(i) ? 'bad' : ''].join(' ');
+    const cells = bits.map(b => `<td>${b}</td>`).join('');
+    const o = outs[i];
+    const oc = opts.editable ? `<td class="out" data-edit="${i}" style="cursor:pointer">${o === null ? '·' : o}</td>`
+                             : `<td class="out">${o === null ? '·' : o}</td>`;
+    return `<tr class="${cls}" data-row="${i}">${cells}${oc}</tr>`;
+  }).join('');
+  return `<table class="tt"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+}
+
+/* =================================================================
+   HERO BENCH
+   ================================================================= */
+const hero = {g:'AND', a:0, b:0};
+function heroDraw() {
+  const def = GATES[hero.g];
+  $('#hBwrap').style.visibility = def.n === 1 ? 'hidden' : 'visible';
+  $('#heroSvg').innerHTML = gateIcon(hero.g);
+  const out = def.n === 1 ? def.f(hero.a) : def.f(hero.a, hero.b);
+  $('#hLamp').textContent = out;
+  $('#hLamp').classList.toggle('on', !!out);
+  $('#hAv').textContent = hero.a; $('#hBv').textContent = hero.b;
+  $('#heroRead').textContent = def.n === 1
+    ? `${def.expr}   →   ${hero.a}' = ${out}`
+    : `${def.expr}   →   A=${hero.a}, B=${hero.b}  gives  ${out}`;
+}
+$('#hA').addEventListener('click', e => { hero.a ^= 1; e.currentTarget.setAttribute('aria-pressed', !!hero.a); heroDraw(); });
+$('#hB').addEventListener('click', e => { hero.b ^= 1; e.currentTarget.setAttribute('aria-pressed', !!hero.b); heroDraw(); });
+$('#heroGate').addEventListener('change', e => { hero.g = e.target.value; heroDraw(); });
+heroDraw();
+
+/* =================================================================
+   GATE GRID
+   ================================================================= */
+(function gateGrid() {
+  $('#gateGrid').innerHTML = Object.entries(GATES).map(([name, d]) => {
+    const rows = rowsFor(d.n);
+    const outs = rows.map(b => d.n === 1 ? d.f(b[0]) : d.f(b[0], b[1]));
+    const vars = d.n === 1 ? ['A'] : ['A', 'B'];
+    return `<article class="gate" data-gate="${name}">
+      <h3>${name}<span class="sym">${d.sym}</span></h3>
+      <div class="expr">${esc(d.expr)}</div>
+      ${gateIcon(name)}
+      <p class="why">${esc(d.why)}</p>
+      <div class="ttwrap">${ttHTML(vars, outs, {pick: true})}</div>
+    </article>`;
+  }).join('');
+
+  $('#gateGrid').addEventListener('click', e => {
+    const tr = e.target.closest('tr[data-row]'); if (!tr) return;
+    const card = tr.closest('.gate');
+    $$('tr', card).forEach(r => r.classList.remove('hot'));
+    tr.classList.add('hot');
+    hero.g = card.dataset.gate;
+    $('#heroGate').value = hero.g;
+    const bits = [...tr.querySelectorAll('td')].slice(0, -1).map(td => +td.textContent);
+    hero.a = bits[0]; hero.b = bits[1] ?? 0;
+    $('#hA').setAttribute('aria-pressed', !!hero.a);
+    $('#hB').setAttribute('aria-pressed', !!hero.b);
+    heroDraw();
+  });
+})();
+
+/* =================================================================
+   TRUTH TABLE DOJO
+   ================================================================= */
+const DOJO = [
+  {expr:"Z = A · B'", vars:['A','B'], f:(A,B)=>A & (B?0:1),
+   hint:"Work left to right. B' first — flip B — then AND it with A."},
+  {expr:"Z = A' + B", vars:['A','B'], f:(A,B)=>((A?0:1) | B),
+   hint:"Flip A, then OR with B. Remember OR only fails when both sides are 0."},
+  {expr:"Z = (A + B)'", vars:['A','B'], f:(A,B)=>((A|B)?0:1),
+   hint:"The bracket comes first. Do the OR, then flip the whole thing. This is NOR."},
+  {expr:"Z = A'·B + A·B'", vars:['A','B'], f:(A,B)=>((A?0:1)&B) | (A&(B?0:1)),
+   hint:"Two AND terms, then OR the results. You may recognise the pattern at the end."},
+  {expr:"Z = x'·y·z", vars:['x','y','z'], f:(x,y,z)=>(x?0:1) & y & z,
+   hint:"An AND of three things is 1 in exactly one row out of eight. Find that row."},
+  {expr:"Z = x·y + z'", vars:['x','y','z'], f:(x,y,z)=>(x&y) | (z?0:1),
+   hint:"Do x·y, do z', then OR them. z' alone is enough to make the output 1."},
+  {expr:"Z = (A·B)' + C", vars:['A','B','C'], f:(A,B,C)=>((A&B)?0:1) | C,
+   hint:"NAND of A and B first, then OR with C. The only 0 rows need A·B = 1 and C = 0."}
+];
+let dojoI = 0, dojoAns = [];
+
+function dojoRender() {
+  const d = DOJO[dojoI], n = d.vars.length;
+  $('#dojoSel').innerHTML = DOJO.map((x, i) =>
+    `<button class="exbtn" data-i="${i}" aria-pressed="${i === dojoI}">${i + 1}</button>`).join('');
+  $('#dojoExpr').innerHTML = esc(d.expr).replace(/([A-Za-z])'/g, '$1<span class="v">\u2032</span>');
+  $('#dojoHint').textContent = d.hint;
+  $('#dojoTable').innerHTML = ttHTML(d.vars, dojoAns, {editable: true});
+  $('#dojoFb').className = 'feedback';
+}
+function dojoLoad(i) {
+  dojoI = i;
+  dojoAns = Array(1 << DOJO[i].vars.length).fill(null);
+  dojoRender();
+}
+$('#dojoSel').addEventListener('click', e => {
+  const b = e.target.closest('.exbtn'); if (b) dojoLoad(+b.dataset.i);
+});
+$('#dojoTable').addEventListener('click', e => {
+  const td = e.target.closest('[data-edit]'); if (!td) return;
+  const i = +td.dataset.edit;
+  dojoAns[i] = dojoAns[i] === null ? 0 : (dojoAns[i] === 0 ? 1 : null);
+  td.textContent = dojoAns[i] === null ? '·' : dojoAns[i];
+});
+$('#dojoClear').addEventListener('click', () => dojoLoad(dojoI));
+$('#dojoNext').addEventListener('click', () => dojoLoad((dojoI + 1) % DOJO.length));
+$('#dojoCheck').addEventListener('click', () => {
+  const d = DOJO[dojoI], rows = rowsFor(d.vars.length);
+  const truth = rows.map(b => d.f(...b) ? 1 : 0);
+  const blanks = dojoAns.filter(x => x === null).length;
+  const wrong = truth.map((t, i) => dojoAns[i] === t ? -1 : i).filter(i => i >= 0 && dojoAns[i] !== null);
+  const fb = $('#dojoFb');
+  if (blanks) {
+    fb.className = 'feedback show bad';
+    fb.innerHTML = `<b>${blanks} row${blanks > 1 ? 's are' : ' is'} still blank.</b> Every row needs a value — click the output cell to cycle 0 → 1 → blank.`;
+    return;
+  }
+  if (!wrong.length) {
+    fb.className = 'feedback show good';
+    fb.innerHTML = `<b>All ${truth.length} rows correct.</b> ${esc(d.expr)} is fully mapped. Try the next expression.`;
+    $('#dojoTable').innerHTML = ttHTML(d.vars, dojoAns, {editable: true, sel: truth.map((t, i) => t ? i : -1).filter(i => i >= 0)});
+  } else {
+    fb.className = 'feedback show bad';
+    fb.innerHTML = `<b>${wrong.length} row${wrong.length > 1 ? 's' : ''} to fix</b> — highlighted in red. Substitute those exact input values back into ${esc(d.expr)} and work left to right.`;
+    $('#dojoTable').innerHTML = ttHTML(d.vars, dojoAns, {editable: true, bad: wrong});
+  }
+});
+dojoLoad(0);
+
+/* =================================================================
+   SHARED: circuit model, evaluation and schematic rendering
+   ================================================================= */
+function literalsFor(bits, vars) { return vars.map((v, j) => bits[j] ? v : v + "'"); }
+function termStr(lits) { return lits.join('·'); }
+function baseVar(l) { return l.replace(/'$/, ''); }
+
+function evalCircuit(vars, terms) {
+  return rowsFor(vars.length).map(bits => {
+    const val = {};
+    vars.forEach((v, i) => { val[v] = bits[i]; val[v + "'"] = bits[i] ? 0 : 1; });
+    return terms.some(t => t.length && t.every(l => val[l] === 1)) ? 1 : 0;
+  });
+}
+
+/** Draw a sum-of-products schematic: rails → inverters → AND gates → one OR gate. */
+function renderCircuit(vars, terms, invVars, outName = 'F') {
+  const rails = [];
+  vars.forEach(v => rails.push(v));
+  invVars.forEach(v => rails.push(v + "'"));
+  const railY = i => 22 + i * 24;
+  const RAIL_X1 = 300, AND_X = 312, AND_W = 48;
+  const railBottom = railY(rails.length - 1) + 16;
+  const GH = t => Math.max(34, 15 * Math.max(2, t.length));
+  const gapY = 20;
+
+  let y = railBottom + 16;
+  const gy = terms.map(t => { const h = GH(t); const o = {y, h}; y += h + gapY; return o; });
+  const single = terms.length < 2;
+  const orTop = gy.length ? gy[0].y : railBottom + 16;
+  const orBot = gy.length ? gy[gy.length - 1].y + gy[gy.length - 1].h : orTop + 40;
+  const orH = Math.max(46, orBot - orTop);
+  const OR_X = 430, OR_W = 56;
+  const H = Math.max(y + 10, orTop + orH + 26);
+
+  let s = '';
+  const line = (x1, y1, x2, y2, c) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c || 'var(--ink2)'}" stroke-width="2" stroke-linecap="round"/>`;
+  const dot = (x, y) => `<circle cx="${x}" cy="${y}" r="3.2" fill="var(--ink2)"/>`;
+
+  /* rails + labels */
+  rails.forEach((r, i) => {
+    const prime = r.endsWith("'");
+    const startX = prime ? 96 : 30;
+    s += `<text x="6" y="${railY(i) + 4}" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700"
+            fill="${prime ? 'var(--violet)' : 'var(--ink)'}">${esc(r)}</text>`;
+    s += line(startX, railY(i), RAIL_X1, railY(i));
+  });
+  /* inverters */
+  invVars.forEach((v, k) => {
+    const vi = vars.indexOf(v), pi = vars.length + k;
+    const dropX = 34 + k * 5;
+    s += dot(dropX, railY(vi)) + line(dropX, railY(vi), dropX, railY(pi)) + line(dropX, railY(pi), 52, railY(pi));
+    const g = gateBody('NOT', 52, railY(pi) - 12, 30, 24);
+    s += `<g style="color:var(--violet)"><path d="${g.d}" fill="currentColor"/>${g.extra}</g>`;
+    s += line(g.outX, railY(pi), 96, railY(pi));
+  });
+
+  /* AND gates + taps */
+  let tap = 0;
+  terms.forEach((t, gi) => {
+    const o = gy[gi];
+    t.forEach((lit, j) => {
+      const ri = rails.indexOf(lit);
+      const pinY = o.y + o.h * (j + 1) / (t.length + 1);
+      const tx = 132 + (tap++) * 9;
+      if (ri >= 0) s += dot(tx, railY(ri)) + line(tx, railY(ri), tx, pinY) + line(tx, pinY, AND_X, pinY);
+    });
+    const g = gateBody('AND', AND_X, o.y, AND_W, o.h);
+    s += `<g style="color:var(--hot)"><path d="${g.d}" fill="currentColor"/></g>`;
+    s += `<text x="${AND_X + AND_W + 8}" y="${o.y + o.h / 2 - 5}" font-family="JetBrains Mono, monospace"
+            font-size="11" fill="var(--ink2)">${esc(termStr(t))}</text>`;
+    if (single) s += line(g.outX, o.y + o.h / 2, 560, o.y + o.h / 2);
+    else {
+      const jx = 384 + gi * 8, pinY = orTop + orH * (gi + 1) / (terms.length + 1);
+      s += line(g.outX, o.y + o.h / 2, jx, o.y + o.h / 2) + line(jx, o.y + o.h / 2, jx, pinY) + line(jx, pinY, OR_X, pinY);
+    }
+  });
+
+  /* OR gate */
+  if (!single && terms.length) {
+    const g = gateBody('OR', OR_X, orTop, OR_W, orH);
+    s += `<g style="color:var(--violet)"><path d="${g.d}" fill="currentColor"/></g>`;
+    s += line(g.outX, orTop + orH / 2, 560, orTop + orH / 2);
+    s += `<text x="566" y="${orTop + orH / 2 + 4}" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="var(--ink)">${esc(outName)}</text>`;
+  } else if (terms.length) {
+    s += `<text x="566" y="${gy[0].y + gy[0].h / 2 + 4}" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="var(--ink)">${esc(outName)}</text>`;
+  }
+
+  return `<svg viewBox="0 0 600 ${H}" role="img" aria-label="Schematic diagram of the circuit">${s}</svg>`;
+}
+
+/* =================================================================
+   DRAG AND DROP (mouse + touch)
+   ================================================================= */
+let DRAG = null;
+function armChip(el, payload, onDrop) {
+  el.draggable = true;
+  el.addEventListener('dragstart', e => { DRAG = {payload, onDrop}; e.dataTransfer.effectAllowed = 'move'; });
+  el.addEventListener('dragend', () => { DRAG = null; $$('.dropzone').forEach(z => z.classList.remove('over')); });
+  el.addEventListener('touchstart', () => { DRAG = {payload, onDrop}; }, {passive: true});
+  el.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    const z = document.elementFromPoint(t.clientX, t.clientY)?.closest('.dropzone');
+    $$('.dropzone').forEach(x => x.classList.toggle('over', x === z));
+  }, {passive: true});
+  el.addEventListener('touchend', e => {
+    const t = e.changedTouches[0];
+    const z = document.elementFromPoint(t.clientX, t.clientY)?.closest('.dropzone');
+    $$('.dropzone').forEach(x => x.classList.remove('over'));
+    if (z && DRAG) DRAG.onDrop(DRAG.payload, z);
+    DRAG = null;
+  });
+}
+function armZone(z) {
+  z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('over'); });
+  z.addEventListener('dragleave', () => z.classList.remove('over'));
+  z.addEventListener('drop', e => {
+    e.preventDefault(); z.classList.remove('over');
+    if (DRAG) DRAG.onDrop(DRAG.payload, z);
+    DRAG = null;
+  });
+}
+
+/* =================================================================
+   THE CIRCUIT BUILDER
+   ================================================================= */
+const EX = [
+  {title:'Two-switch stage light', vars:['A','B'], out:[0,1,1,0], outName:'L',
+   story:'A stage light is wired to two switches at opposite ends of the hall. The light must come on when exactly one switch is up. If both are up, or both are down, it stays off.'},
+  {title:'Three-sensor tally', vars:['x','y','z'], out:[0,1,0,1,0,0,0,1], outName:'F',
+   story:'Straight from the textbook. Three inputs, three rows that produce a 1. Do not try to spot a pattern — run the drill and the answer falls out.'},
+  {title:'Ferry ramp alarm', vars:['G','R','M'], out:[0,0,1,1,1,0,0,0], outName:'A',
+   story:'G is 1 when the gate is open, R is 1 when the ramp is down, M is 1 when motion is detected. The alarm should sound in exactly three of the eight situations.'},
+  {title:'The corrected textbook example', vars:['A','C','D'], out:[0,1,1,1,0,1,0,1], outName:'R',
+   story:'This is the true table for R = A\u2032·C + D. Five rows output a 1, so you will build five AND terms feeding one OR gate. Slow and steady — the drill does not change just because the table got bigger.'}
+];
+const STEPS = [
+  {k:'SCAN',  t:'Find the 1s'},
+  {k:'MARK',  t:'Plain or prime'},
+  {k:'WRITE', t:'One term per row'},
+  {k:'SUM',   t:'Join with OR'},
+  {k:'DRAW',  t:'Wire the gates'}
+];
+const B = {ex:0, step:0, scan:[], marks:{}, picks:{}, sum:[], inv:[], wires:[], done:[], cleared:[false,false,false,false]};
+
+const curEx = () => EX[B.ex];
+const oneRows = () => curEx().out.map((o, i) => o ? i : -1).filter(i => i >= 0);
+const correctTerms = () => oneRows().map(i => literalsFor(rowsFor(curEx().vars.length)[i], curEx().vars));
+const neededInv = () => [...new Set(correctTerms().flat().filter(l => l.endsWith("'")).map(baseVar))]
+                          .sort((a, b) => curEx().vars.indexOf(a) - curEx().vars.indexOf(b));
+
+function exReset(i) {
+  B.ex = i; B.step = 0; B.scan = []; B.marks = {}; B.picks = {}; B.sum = []; B.inv = []; B.wires = [];
+  B.done = [false, false, false, false, false];
+  drawEx();
+}
+function drawEx() {
+  const e = curEx();
+  $('#exSel').innerHTML = EX.map((x, i) =>
+    `<button class="exbtn" data-i="${i}" aria-pressed="${i === B.ex}">${i + 1}. ${esc(x.title)} ${B.cleared[i] ? '<span class="tick">\u2713</span>' : ''}</button>`).join('');
+  $('#exTitle').textContent = e.title;
+  $('#exVars').textContent = `${e.vars.length} inputs \u00b7 ${1 << e.vars.length} rows \u00b7 output ${e.outName}`;
+  $('#exStory').textContent = e.story;
+  $('#stepBar').innerHTML = STEPS.map((s, i) =>
+    `<button class="stepbtn" data-i="${i}" ${i > 0 && !B.done[i - 1] ? 'disabled' : ''}
+      data-state="${i === B.step ? 'active' : (B.done[i] ? 'done' : '')}">
+      <b>${s.k}</b><small>${esc(s.t)}</small></button>`).join('');
+  $('#bBack').disabled = B.step === 0;
+  $('#bFb').className = 'feedback';
+  renderStage();
+}
+$('#exSel').addEventListener('click', e => { const b = e.target.closest('.exbtn'); if (b) exReset(+b.dataset.i); });
+$('#stepBar').addEventListener('click', e => {
+  const b = e.target.closest('.stepbtn'); if (!b || b.disabled) return;
+  B.step = +b.dataset.i; drawEx();
+});
+$('#bBack').addEventListener('click', () => { if (B.step > 0) { B.step--; drawEx(); } });
+$('#bReset').addEventListener('click', () => exReset(B.ex));
+
+/* ---------------- stage rendering ---------------- */
+function renderStage() {
+  const e = curEx(), st = $('#stage');
+  const rows = rowsFor(e.vars.length);
+
+  if (B.step === 0) {
+    st.innerHTML = `<h4>Step 1 — Scan</h4>
+      <p class="task">Click every row where the output is <b>1</b>. Those rows, and only those rows, become terms in your answer.
+      Rows that output 0 are thrown away — they contribute nothing.</p>
+      <div style="max-width:340px">${ttHTML(e.vars, e.out, {pick: true, sel: B.scan, outName: e.outName})}</div>`;
+  }
+
+  if (B.step === 1) {
+    const sel = [...B.scan].sort((a, b) => a - b);
+    st.innerHTML = `<h4>Step 2 — Mark</h4>
+      <p class="task">For each row you selected, decide how every input is written.
+      <b>An input of 1 stays plain. An input of 0 takes a prime.</b> Click a letter to flip it.</p>
+      <div class="note warn" style="margin-top:0"><b>Why the rule is backwards-looking.</b> You want a term that equals 1 <em>on this row</em>.
+      If the input is 0 on this row, then <span class="mono">A</span> would be 0 and would kill the whole AND — so you use <span class="mono">A\u2032</span>, which is 1 exactly when A is 0.</div>
+      ${sel.map(i => {
+        const bits = rows[i];
+        if (!B.marks[i]) B.marks[i] = e.vars.map(() => 1);
+        return `<div class="markrow" data-row="${i}">
+          <span class="bits">${bits.join('')}</span>
+          ${e.vars.map((v, j) =>
+            `<button class="lit" data-row="${i}" data-j="${j}" data-p="${B.marks[i][j]}">${esc(v)}${B.marks[i][j] ? '' : '\u2032'}</button>`).join('')}
+        </div>`;
+      }).join('')}`;
+  }
+
+  if (B.step === 2) {
+    const sel = [...B.scan].sort((a, b) => a - b);
+    st.innerHTML = `<h4>Step 3 — Write</h4>
+      <p class="task">Each marked row becomes one <b>AND term</b>: every letter multiplied together.
+      Pick the correct way to write each row. Two of the three options are the mistakes people actually make.</p>
+      ${sel.map(i => {
+        const bits = rows[i], good = termStr(literalsFor(bits, e.vars));
+        const flipped = termStr(bits.map((b, j) => b ? e.vars[j] + "'" : e.vars[j]));
+        const plussed = literalsFor(bits, e.vars).join(' + ');
+        const opts = shuffleSeeded([good, flipped, plussed], i + B.ex * 7);
+        return `<div class="markrow" data-row="${i}">
+          <span class="bits">${bits.join('')}</span>
+          <div class="chiprow">${opts.map(o =>
+            `<button class="chip ${B.picks[i] === o ? 'on' : ''}" data-row="${i}" data-pick="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+        </div>`;
+      }).join('')}`;
+  }
+
+  if (B.step === 3) {
+    const good = correctTerms().map(termStr);
+    const allPrime = termStr(e.vars.map(v => v + "'")), allPlain = termStr(e.vars.map(v => v));
+    const decoy = good.includes(allPrime) ? (good.includes(allPlain) ? termStr(e.vars.map((v, i) => i ? v : v + "'")) : allPlain) : allPrime;
+    const pool = shuffleSeeded([...good, decoy].filter((x, i, a) => a.indexOf(x) === i), B.ex + 3);
+    st.innerHTML = `<h4>Step 4 — Sum</h4>
+      <p class="task">Drag every correct term into the expression bar. They get joined with <b>+</b> (OR).
+      One chip in the pool does not belong to this table — leave it behind. Tap the <b>\u2715</b> on a placed chip to send it back.</p>
+      <div class="chiprow" id="pool" style="margin-bottom:14px">
+        ${pool.filter(p => !B.sum.includes(p)).map(p => `<span class="chip" data-val="${esc(p)}">${esc(p)}</span>`).join('') || '<span style="color:var(--ink3);font-size:.88rem">Pool empty</span>'}
+      </div>
+      <div class="dropzone" id="drop">${B.sum.map((p, i) =>
+        `${i ? '<span class="plus">+</span>' : ''}<span class="chip ok" data-val="${esc(p)}">${esc(p)}<button class="x" data-rm="${esc(p)}" aria-label="Remove ${esc(p)}">\u2715</button></span>`).join('')}</div>
+      <div class="exprbar" style="margin-top:14px">${esc(e.outName)} = ${B.sum.length ? esc(B.sum.join(' + ')) : '\u2026'}</div>`;
+    const zone = $('#drop', st); armZone(zone);
+    $$('#pool .chip', st).forEach(c => armChip(c, c.dataset.val, v => { if (!B.sum.includes(v)) { B.sum.push(v); renderStage(); } }));
+    $$('#pool .chip', st).forEach(c => c.addEventListener('click', () => {
+      if (!B.sum.includes(c.dataset.val)) { B.sum.push(c.dataset.val); renderStage(); }
+    }));
+    zone.addEventListener('click', ev => {
+      const x = ev.target.closest('[data-rm]'); if (!x) return;
+      B.sum = B.sum.filter(v => v !== x.dataset.rm); renderStage();
+    });
+  }
+
+  if (B.step === 4) {
+    const terms = B.sum.map(s => s.split('\u00b7'));
+    if (!B.wires.length) B.wires = terms.map(() => []);
+    const allLits = e.vars.flatMap(v => [v, v + "'"]);
+    st.innerHTML = `<h4>Step 5 — Draw</h4>
+      <p class="task">Now turn the expression into hardware. First decide which inputs need an inverter,
+      then wire each AND gate by choosing exactly the signals that feed it. Then check — the page will build your circuit and test it against all ${1 << e.vars.length} rows.</p>
+      <div class="wire"><span class="tag">Inverters</span>
+        <div class="chiprow">${e.vars.map(v =>
+          `<button class="chip ${B.inv.includes(v) ? 'on' : ''}" data-inv="${esc(v)}">${esc(v)} \u2192 ${esc(v)}\u2032</button>`).join('')}</div>
+      </div>
+      <div class="wirebox" style="margin-top:12px">
+        ${terms.map((t, gi) => `<div class="wire"><span class="tag">AND gate ${gi + 1}</span>
+          <div class="chiprow">${allLits.map(l =>
+            `<button class="chip ${B.wires[gi].includes(l) ? 'on' : ''}" data-g="${gi}" data-lit="${esc(l)}">${esc(l)}</button>`).join('')}</div>
+        </div>`).join('')}
+      </div>
+      <div id="scopeBox" style="margin-top:20px"></div>`;
+  }
+}
+
+/* one delegated listener for the whole stage — never stacks up on re-render */
+$('#stage').addEventListener('click', ev => {
+  const e = curEx();
+  if (B.step === 0) {
+    const tr = ev.target.closest('tr[data-row]'); if (!tr) return;
+    const i = +tr.dataset.row;
+    B.scan = B.scan.includes(i) ? B.scan.filter(x => x !== i) : [...B.scan, i];
+    tr.classList.toggle('sel'); return;
+  }
+  if (B.step === 1) {
+    const b = ev.target.closest('.lit'); if (!b) return;
+    const r = +b.dataset.row, j = +b.dataset.j;
+    B.marks[r][j] ^= 1; b.dataset.p = B.marks[r][j];
+    b.textContent = e.vars[j] + (B.marks[r][j] ? '' : '\u2032'); return;
+  }
+  if (B.step === 2) {
+    const c = ev.target.closest('.chip[data-pick]'); if (!c) return;
+    B.picks[+c.dataset.row] = c.dataset.pick;
+    $$('.chip[data-row="' + c.dataset.row + '"]', $('#stage')).forEach(x => x.classList.remove('on'));
+    c.classList.add('on'); return;
+  }
+  if (B.step === 4) {
+    const iv = ev.target.closest('[data-inv]');
+    if (iv) { const v = iv.dataset.inv; B.inv = B.inv.includes(v) ? B.inv.filter(x => x !== v) : [...B.inv, v]; return renderStage(); }
+    const w = ev.target.closest('[data-lit]');
+    if (w) { const g = +w.dataset.g, l = w.dataset.lit;
+      B.wires[g] = B.wires[g].includes(l) ? B.wires[g].filter(x => x !== l) : [...B.wires[g], l];
+      return renderStage(); }
+  }
+});
+
+function shuffleSeeded(arr, seed) {
+  const a = [...arr]; let s = seed * 9301 + 49297;
+  for (let i = a.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const fb = (ok, html) => { const f = $('#bFb'); f.className = 'feedback show ' + (ok ? 'good' : 'bad'); f.innerHTML = html; };
+
+/* ---------------- step checking ---------------- */
+$('#bCheck').addEventListener('click', () => {
+  const e = curEx(), rows = rowsFor(e.vars.length);
+
+  if (B.step === 0) {
+    const want = oneRows(), got = [...B.scan].sort((a, b) => a - b);
+    const missed = want.filter(i => !got.includes(i)), extra = got.filter(i => !want.includes(i));
+    if (!missed.length && !extra.length) {
+      B.done[0] = true; B.step = 1;
+      fb(true, `<b>${want.length} rows found.</b> Every one of them will become an AND term. The other ${(1 << e.vars.length) - want.length} rows are now irrelevant.`);
+      return drawEx();
+    }
+    return fb(false, `<b>Not quite.</b> ${missed.length ? `You missed ${missed.length} row${missed.length > 1 ? 's' : ''} where ${e.outName} is 1. ` : ''}${extra.length ? `You selected ${extra.length} row${extra.length > 1 ? 's' : ''} where ${e.outName} is 0. ` : ''}Read down the output column only — ignore the inputs entirely at this step.`);
+  }
+
+  if (B.step === 1) {
+    const bad = [];
+    [...B.scan].sort((a, b) => a - b).forEach(i => {
+      const bits = rows[i];
+      if (!bits.every((b, j) => B.marks[i][j] === b)) bad.push(bits.join(''));
+    });
+    if (!bad.length) {
+      B.done[1] = true; B.step = 2;
+      fb(true, `<b>Every literal is marked correctly.</b> Notice you never invented anything — the row's own bits told you exactly what to write.`);
+      return drawEx();
+    }
+    return fb(false, `<b>Check row${bad.length > 1 ? 's' : ''} ${bad.join(', ')}.</b> Go bit by bit: a <span class="mono">1</span> in the input means the plain letter, a <span class="mono">0</span> means the primed letter. It is easy to do this backwards — most people do, once.`);
+  }
+
+  if (B.step === 2) {
+    const sel = [...B.scan].sort((a, b) => a - b);
+    const missing = sel.filter(i => !B.picks[i]);
+    if (missing.length) return fb(false, `<b>${missing.length} row${missing.length > 1 ? 's have' : ' has'} no term chosen yet.</b> Pick one option for every marked row.`);
+    const bad = sel.filter(i => B.picks[i] !== termStr(literalsFor(rows[i], e.vars)));
+    if (!bad.length) {
+      B.done[2] = true; B.step = 3;
+      fb(true, `<b>Correct.</b> Each of those is an AND term — a detector that fires on one row and no other.`);
+      return drawEx();
+    }
+    const wrongOne = B.picks[bad[0]];
+    return fb(false, `<b>${bad.length} term${bad.length > 1 ? 's are' : ' is'} wrong.</b> ${wrongOne.includes('+')
+      ? 'You picked a version joined with <span class="mono">+</span>. Inside a term the letters are ANDed, not ORed — the OR only appears between terms, in the next step.'
+      : 'You have the primes the wrong way round. On a row, a 0 input becomes a primed letter.'}`);
+  }
+
+  if (B.step === 3) {
+    const want = correctTerms().map(termStr).sort();
+    const got = [...B.sum].sort();
+    if (want.length === got.length && want.every((w, i) => w === got[i])) {
+      B.done[3] = true; B.step = 4; B.wires = [];
+      fb(true, `<b>That is your Boolean function.</b> ${e.outName} = ${esc(B.sum.join(' + '))} \u2014 this form has a name: <em>sum of products</em>. Products are the AND terms, the sum is the OR.`);
+      return drawEx();
+    }
+    const extra = got.filter(g => !want.includes(g));
+    return fb(false, `<b>The expression is not right yet.</b> ${extra.length ? 'One of the chips you placed is not a term from this table \u2014 remove it with the \u2715. ' : ''}You need exactly ${want.length} term${want.length > 1 ? 's' : ''}, one for every row where ${e.outName} is 1.`);
+  }
+
+  if (B.step === 4) {
+    const wantInv = neededInv().sort().join(','), gotInv = [...B.inv].sort().join(',');
+    if (wantInv !== gotInv) {
+      return fb(false, `<b>The inverters are not right.</b> An input needs an inverter if and only if it appears <em>primed</em> somewhere in your expression. Read through ${esc(B.sum.join(' + '))} and list every letter you see with a prime on it.`);
+    }
+    const want = correctTerms().map(t => [...t].sort().join(','));
+    const got = B.wires.map(w => [...w].sort().join(','));
+    const badGate = got.findIndex((g, i) => !want.includes(g) || got.filter(x => x === g).length > want.filter(x => x === g).length);
+    if (badGate >= 0 || got.length !== want.length) {
+      return fb(false, `<b>${badGate >= 0 ? 'AND gate ' + (badGate + 1) + ' is' : 'The AND gates are'} not wired correctly.</b> Each AND gate takes exactly one signal per input variable \u2014 ${e.vars.length} wires in, one wire out. Match each gate to its term in ${esc(B.sum.join(' + '))}, letter for letter.`);
+    }
+    const produced = evalCircuit(e.vars, B.wires);
+    const ok = produced.every((p, i) => p === e.out[i]);
+    $('#scopeBox').innerHTML = `
+      <h4 style="margin-bottom:10px">Your circuit</h4>
+      <div class="scope">${renderCircuit(e.vars, B.wires, neededInv(), e.outName)}</div>
+      <div class="verify">
+        <div><p style="font-size:.85rem;color:var(--ink2);margin-bottom:6px">What the question asked for</p>${ttHTML(e.vars, e.out, {outName: e.outName})}</div>
+        <div><p style="font-size:.85rem;color:var(--ink2);margin-bottom:6px">What your circuit actually produces</p>${ttHTML(e.vars, produced, {outName: e.outName, bad: produced.map((p, i) => p === e.out[i] ? -1 : i).filter(i => i >= 0)})}</div>
+      </div>`;
+    if (ok) {
+      B.done[4] = true; B.cleared[B.ex] = true;
+      fb(true, `<b>Built and verified.</b> Your circuit reproduces all ${1 << e.vars.length} rows of the original table. That is the whole method \u2014 scan, mark, write, sum, draw. It works on any truth table you will ever be given.`);
+      $$('.stepbtn').forEach((x, i) => x.dataset.state = (i === 4 ? 'active' : 'done'));
+      $('#exSel').innerHTML = EX.map((x, i) =>
+        `<button class="exbtn" data-i="${i}" aria-pressed="${i === B.ex}">${i + 1}. ${esc(x.title)} ${B.cleared[i] ? '<span class="tick">\u2713</span>' : ''}</button>`).join('');
+      return;
+    }
+    return fb(false, `<b>The wiring is legal but the output does not match.</b> Compare the two tables above and find the first row that differs.`);
+  }
+});
+exReset(0);
+
+/* =================================================================
+   WORKING BACKWARDS — read the circuit
+   ================================================================= */
+const REV = [
+  {vars:['A','B'], inv:['A'], terms:[["A'",'B'],['A','B']], outName:'Z',
+   opts:["Z = A\u2032·B + A·B", "Z = A\u2032·B\u2032 + A·B", "Z = (A + B)\u2032", "Z = A·B\u2032 + A\u2032·B"], a:0,
+   note:'Label the wire out of the inverter A\u2032, label each AND output, then OR them. Worth noticing: this one is always equal to B on its own — A cancels out. Circuits are often bigger than they need to be.'},
+  {vars:['x','y','z'], inv:['x','z'], terms:[["x'",'y','z'],['x','y',"z'"]], outName:'F',
+   opts:["F = x\u2032·y·z + x·y·z\u2032", "F = x·y·z + x\u2032·y·z\u2032", "F = x\u2032·y\u2032·z + x·y·z", "F = (x·y·z)\u2032"], a:0,
+   note:'Two inverters, so exactly two primed letters appear across the whole expression — one in each term here.'},
+  {vars:['A','B','C'], inv:['B'], terms:[['A',"B'"],["B'",'C']], outName:'Z',
+   opts:["Z = A·B\u2032 + B\u2032·C", "Z = A·B + B·C", "Z = A\u2032·B + B·C\u2032", "Z = (A + C)·B\u2032"], a:0,
+   note:'The same signal B\u2032 feeds both AND gates. One inverter can supply as many gates as you like — that is what the dot on the wire means.'},
+  {vars:['P','Q'], inv:['P','Q'], terms:[["P'","Q'"]], outName:'Z',
+   opts:["Z = P\u2032·Q\u2032", "Z = P\u2032 + Q\u2032", "Z = P·Q", "Z = (P·Q)\u2032"], a:0,
+   note:'Both inputs inverted, then ANDed. This is exactly a NOR gate — output is 1 only when both inputs are 0. That equivalence is one half of De Morgan\u2019s laws.'}
+];
+let revI = -1;
+function revDraw() {
+  revI = (revI + 1) % REV.length;
+  const r = REV[revI];
+  $('#revCircuit').innerHTML = renderCircuit(r.vars, r.terms, r.inv, r.outName);
+  $('#revOpts').innerHTML = shuffleSeeded(r.opts.map((o, i) => ({o, i})), revI + 11)
+    .map(({o, i}) => `<button class="chip" data-i="${i}" style="cursor:pointer">${esc(o)}</button>`).join('');
+  $('#revFb').className = 'feedback';
+}
+$('#revOpts').addEventListener('click', e => {
+  const b = e.target.closest('[data-i]'); if (!b) return;
+  const r = REV[revI], ok = +b.dataset.i === r.a;
+  $$('#revOpts .chip').forEach(c => { c.disabled = true; c.classList.add(+c.dataset.i === r.a ? 'ok' : 'no'); });
+  const f = $('#revFb'); f.className = 'feedback show ' + (ok ? 'good' : 'bad');
+  f.innerHTML = (ok ? '<b>Correct.</b> ' : '<b>Not that one.</b> The correct reading is <span class="mono">' + esc(r.opts[r.a]) + '</span>. ') + r.note;
+});
+$('#revNext').addEventListener('click', revDraw);
+revDraw();
+
+/* =================================================================
+   SPOT THE BUG — the printed table vs the function
+   ================================================================= */
+const BUG = {vars:['A','C','D'], printed:[0,0,1,1,0,0,0,0], correct:[0,1,1,1,0,1,0,1], wrong:[1,5,7]};
+let bugSel = [];
+function bugDraw(showCorrect) {
+  $('#bugTable').innerHTML = ttHTML(BUG.vars, showCorrect ? BUG.correct : BUG.printed,
+    {pick: !showCorrect, sel: showCorrect ? [] : bugSel, bad: showCorrect ? BUG.wrong : [], outName: 'R'});
+}
+$('#bugTable').addEventListener('click', e => {
+  const tr = e.target.closest('tr[data-row]'); if (!tr || !tr.classList.contains('pick')) return;
+  const i = +tr.dataset.row;
+  bugSel = bugSel.includes(i) ? bugSel.filter(x => x !== i) : [...bugSel, i];
+  tr.classList.toggle('sel');
+});
+$('#bugCheck').addEventListener('click', () => {
+  const got = [...bugSel].sort((a, b) => a - b).join(','), want = BUG.wrong.join(',');
+  const f = $('#bugFb'); f.className = 'feedback show ' + (got === want ? 'good' : 'bad');
+  f.innerHTML = got === want
+    ? `<b>Exactly right.</b> Rows <span class="mono">001</span>, <span class="mono">101</span> and <span class="mono">111</span> all have D = 1, and the function says <span class="mono">+ D</span> — so R must be 1 in all three. The printed table is really the table for <span class="mono">A\u2032·C</span> alone; the <span class="mono">D</span> term was drawn in the circuit but never carried into the table.`
+    : `<b>Keep looking.</b> Use the shortcut: the expression is <span class="mono">A\u2032·C + D</span>, so <em>any</em> row with D = 1 must output 1, whatever A and C are doing. Find every row with D = 1 and check what the table claims.`;
+});
+$('#bugShow').addEventListener('click', () => {
+  bugDraw(true);
+  const f = $('#bugFb'); f.className = 'feedback show good';
+  f.innerHTML = `<b>The corrected table.</b> The three highlighted rows were printed as 0 and should be 1. This is exercise 4 in the builder above — work it through and you will get a five-gate circuit that matches this table perfectly.`;
+});
+bugDraw(false);
+
+/* =================================================================
+   UNIT TEST — 30 questions, four parts
+   ================================================================= */
+const PARTS = {A:'Gates & truth tables', B:'Boolean expressions', C:'Table to function', D:'Circuits & applications'};
+const Q = [
+/* ---- PART A ---- */
+{p:'A', q:'A three-input AND gate receives A = 1, B = 1, C = 0. What is the output?', opts:['1','0','It depends on the previous inputs','Undefined for three inputs'], a:1,
+ why:'An AND gate outputs 1 only when every input is 1. One zero anywhere forces the output to 0, no matter how many inputs there are.'},
+{p:'A', q:'Which gate outputs 1 only when its two inputs are different?', opts:['AND','NOR','XOR','XNOR'], a:2,
+ why:'XOR is the "exclusive or" — one or the other, never both. 0/1 and 1/0 give 1; 0/0 and 1/1 give 0.'},
+{p:'A', q:'For a two-input NOR gate, which single row of the truth table produces an output of 1?', opts:['A = 0, B = 0','A = 0, B = 1','A = 1, B = 0','A = 1, B = 1'], a:0,
+ why:'NOR is OR with the output flipped. OR gives 0 only on row 00, so NOR gives 1 only on row 00 — the output is on when everything is off.'},
+{p:'A', q:'How many inputs and outputs does a NOT gate have?', opts:['Two inputs, one output','One input, two outputs','One input, one output','Any number of inputs, one output'], a:2,
+ why:'The inverter is the only gate restricted to a single input. It takes one signal and produces its opposite.'},
+{p:'A', q:'Which gate is an AND gate with an inverter on its output?', opts:['NOR','NAND','XNOR','XOR'], a:1,
+ why:'NAND = NOT-AND. In the symbol it is drawn as the AND shape with a small circle (a bubble) on the output, and the bubble always means "inverted here".'},
+{p:'A', q:'Of the four rows in a two-input OR gate truth table, how many give an output of 1?', opts:['One','Two','Three','Four'], a:2,
+ why:'OR fails only when both inputs are 0. Rows 01, 10 and 11 all give 1 — three out of four.'},
+{p:'A', q:'An XNOR gate outputs 1 when:', opts:['Exactly one input is 1','Both inputs are the same','Both inputs are 1','At least one input is 0'], a:1,
+ why:'XNOR is XOR inverted, so it detects agreement. Both 0 or both 1 gives 1; anything mismatched gives 0.'},
+{p:'A', q:'A logic gate has four inputs. How many rows will its truth table have?', opts:['4','8','16','32'], a:2,
+ why:'Each input doubles the number of combinations, so n inputs give 2 to the power n rows. 2⁴ = 16.'},
+/* ---- PART B ---- */
+{p:'B', q:'Evaluate A′·B when A = 0 and B = 1.', opts:['0','1','Cannot be determined','2'], a:1,
+ why:"A = 0, so A′ = 1. Then 1 AND 1 = 1. Always resolve the primes before doing anything else."},
+{p:'B', q:'What does the expression A′B mean?', opts:['NOT (A AND B)','(NOT A) AND B','A OR (NOT B)','NOT A, then NOT B'], a:1,
+ why:'A prime attaches to the single letter it sits on, and nothing more. To invert a whole product you need a bracket: (AB)′.'},
+{p:'B', q:'Evaluate (A + B)′ when A = 0 and B = 0.', opts:['0','1','A','Undefined'], a:1,
+ why:'Brackets first: 0 + 0 = 0. Then invert: 0′ = 1. This expression is simply a NOR gate.'},
+{p:'B', q:'Evaluate x·y + z′ when x = 1, y = 0, z = 0.', opts:['0','1','x','Undefined'], a:1,
+ why:"x·y = 1·0 = 0. z′ = 0′ = 1. Then 0 + 1 = 1. The second term alone is enough to switch the output on."},
+{p:'B', q:'Which expression correctly describes a NAND gate?', opts:['A′·B′','(A·B)′','A′ + B′ is wrong notation','A + B′'], a:1,
+ why:"(A·B)′ — AND them first, then invert the result. Note that A′ + B′ also happens to equal the same thing, which is De Morgan's law, but (A·B)′ is the direct definition."},
+{p:'B', q:'Evaluate A′·B·C when A = 0, B = 1, C = 1.', opts:['0','1','3','Cannot be determined'], a:1,
+ why:'A′ = 1, so the term becomes 1·1·1 = 1. A three-letter AND term is 1 in exactly one row out of eight.'},
+{p:'B', q:'In a three-variable truth table, how many rows make the term x′·y′·z′ equal to 1?', opts:['None','Exactly one','Three','Four'], a:1,
+ why:'Every AND term of full length is a detector for one specific row — here the row 000. That is precisely why the sum-of-products method works.'},
+/* ---- PART C ---- */
+{p:'C', q:'A truth table row has A = 0, B = 1 and an output of 1. What AND term does that row contribute?', opts:['A·B','A′·B','A·B′','A′·B′'], a:1,
+ why:'One means plain, zero means prime. A is 0 so it becomes A′; B is 1 so it stays B. The term is A′·B.'},
+{p:'C', q:'A truth table has five rows where the output is 1. How many AND gates will the sum-of-products circuit need?', opts:['Two','Five','Eight','One for each input variable'], a:1,
+ why:'One AND gate per 1-row. The number of input variables decides how many wires go into each gate, not how many gates there are.'},
+{p:'C', q:'In the sum-of-products method, what do the rows with an output of 0 contribute?', opts:['One AND term each','One inverter each','Nothing at all','They decide the number of OR gates'], a:2,
+ why:'They are discarded at the SCAN step. The circuit only needs to describe the situations that switch the output on; everything else is off by default.'},
+{p:'C', q:'Which step of the drill comes first?', opts:['Mark the primes','Scan for the 1s','Draw the inverters','Write the AND terms'], a:1,
+ why:'SCAN, MARK, WRITE, SUM, DRAW. Marking before scanning means marking rows you are about to throw away.'},
+{p:'C', q:'With variables x, y, z, what term does the row 101 contribute if its output is 1?', opts:['x·y·z','x′·y·z′','x·y′·z','x′·y′·z'], a:2,
+ why:'Read the bits in order: x = 1 stays plain, y = 0 takes a prime, z = 1 stays plain. That gives x·y′·z.'},
+{p:'C', q:'For a two-variable table with outputs 1, 0, 0, 1 (reading rows 00, 01, 10, 11), what is the function?', opts:["A′·B′ + A·B","A′·B + A·B′","A·B","(A + B)′"], a:0,
+ why:'Rows 00 and 11 output 1. Row 00 gives A′·B′ and row 11 gives A·B. Joined with OR that is A′·B′ + A·B — which is an XNOR gate.'},
+{p:'C', q:'Your derived function is F = A·B′·C + A′·B·C. How many inverters does the circuit need?', opts:['One','Two','Three','Four'], a:1,
+ why:'Count the distinct letters that appear primed anywhere: A′ and B′. That is two inverters, and each can feed as many AND gates as needed. C never appears primed.'},
+{p:'C', q:'In the finished sum-of-products circuit, what is the very last gate before the output?', opts:['An AND gate','An OR gate','An inverter','A NAND gate'], a:1,
+ why:'The AND gates detect individual situations; the single OR gate at the end collects them, saying "fire if any of these happened".'},
+/* ---- PART D ---- */
+{p:'D', q:'The output of a combinational circuit depends on:', opts:['The current inputs only','The current inputs and the previous inputs','A stored clock value','The order the gates were built in'], a:0,
+ why:'Combinational circuits have no memory. Feed in the same inputs tomorrow and you get the same output — which is exactly why a truth table describes one completely.'},
+{p:'D', q:'Which statement about combinational circuits is FALSE?', opts:['They can have n inputs and m outputs','They store the previous state','They are built from basic logic gates','Block diagrams can be used to generalise them'], a:1,
+ why:'Storing a previous state is the defining feature of a sequential circuit — flip-flops and registers. Combinational circuits are stateless.'},
+{p:'D', q:'Where do inverters sit in a sum-of-products circuit?', opts:['After the OR gate','Between the AND gates and the OR gate','On the inputs, before the AND gates','They are optional decoration'], a:2,
+ why:'Each primed literal must exist as a real signal before it can feed an AND gate, so the inverters come first — they create A′ from A right at the input.'},
+{p:'D', q:'What is the minimum number of gates needed to build F = A·B + C?', opts:['One','Two','Three','Four'], a:1,
+ why:'One AND gate for A·B, then one OR gate combining that result with C. C needs no gate of its own — a plain input can feed the OR directly.'},
+{p:'D', q:'In a half adder, which gate produces the SUM output?', opts:['AND','OR','XOR','NOR'], a:2,
+ why:'Sum is 1 when exactly one of the two bits is 1 — that is XOR. The carry, which is 1 only when both bits are 1, comes from an AND gate.'},
+{p:'D', q:'A security system uses Alarm = Armed·(Motion + Door). If Armed = 1, Motion = 0 and Door = 1, what happens?', opts:['The alarm stays silent','The alarm sounds','The system disarms','Cannot be determined'], a:1,
+ why:'Brackets first: Motion + Door = 0 + 1 = 1. Then Armed AND that = 1 AND 1 = 1. The alarm sounds — an open door is enough on its own once the system is armed.'},
+{p:'D', q:'Why is sum-of-products worth learning even though the resulting circuit is often larger than necessary?', opts:['It is the only method that works','It always produces the smallest circuit','It produces a correct circuit from any truth table, every time, with no insight required','It avoids the need for inverters'], a:2,
+ why:'It is a guaranteed procedure, not a puzzle. You can simplify afterwards using Boolean algebra, but a correct big circuit beats an elegant wrong one in an exam.'}
+];
+
+let T = {order:[], i:0, answers:{}, started:false};
+const grade = p => p >= 85 ? 'A' : p >= 75 ? 'B' : p >= 65 ? 'C' : p >= 50 ? 'D' : 'F';
+
+function testStart(list) {
+  T = {order: list || Q.map((_, i) => i), i: 0, answers: {}, started: true};
+  $('#testIntro').classList.add('hide'); $('#testDone').classList.add('hide'); $('#reviewBox').innerHTML = '';
+  $('#testRun').classList.remove('hide');
+  testRender();
+}
+function testRender() {
+  const idx = T.order[T.i], q = Q[idx];
+  $('#testPos').textContent = `${T.i + 1} / ${T.order.length}`;
+  $('#testMeter').style.width = (T.i / T.order.length * 100) + '%';
+  const right = Object.entries(T.answers).filter(([k, v]) => v === Q[k].a).length;
+  $('#testScore').textContent = `${right} correct`;
+  $('#qcard').innerHTML = `
+    <span class="qnum">Question ${T.i + 1}</span><span class="qpart">Part ${q.p} \u00b7 ${PARTS[q.p]}</span>
+    <p class="qtext">${esc(q.q)}</p>
+    ${q.extra || ''}
+    <div class="opts">${q.opts.map((o, i) =>
+      `<button class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+    <div class="feedback" id="qfb"></div>`;
+}
+$('#qcard').addEventListener('click', e => {
+  const b = e.target.closest('.opt'); if (!b || b.disabled) return;
+  const idx = T.order[T.i], q = Q[idx], pick = +b.dataset.i;
+  T.answers[idx] = pick;
+  $$('#qcard .opt').forEach((o, i) => { o.disabled = true; if (i === q.a) o.classList.add('correct'); else if (i === pick) o.classList.add('wrong'); });
+  const f = $('#qfb'); f.className = 'feedback show ' + (pick === q.a ? 'good' : 'bad');
+  const last = T.i === T.order.length - 1;
+  f.innerHTML = `<b>${pick === q.a ? 'Correct.' : 'The answer is ' + 'ABCD'[q.a] + '.'}</b> ${esc(q.why)}
+    <div class="btnrow"><button class="btn accent" id="qNext">${last ? 'See my results' : 'Next question'}</button></div>`;
+  $('#qNext').addEventListener('click', () => {
+    if (last) return testFinish();
+    T.i++; testRender(); $('#qcard').scrollIntoView({block: 'nearest'});
+  });
+});
+function testFinish() {
+  $('#testRun').classList.add('hide'); $('#testDone').classList.remove('hide');
+  const asked = T.order.length;
+  const right = T.order.filter(i => T.answers[i] === Q[i].a).length;
+  const pct = Math.round(right / asked * 100);
+  $('#doneScore').textContent = `${right}/${asked}`;
+  $('#doneGrade').textContent = `${pct}%  \u00b7  grade ${grade(pct)}`;
+  $('#doneMsg').textContent = pct >= 85
+    ? 'You can run the drill and read a circuit both ways. Move on to the next topic.'
+    : pct >= 65
+      ? 'Solid foundation with gaps. Look at your weakest part below and redo that section of the page before the next class.'
+      : 'Go back to the builder and work all four exercises end to end. This topic is worth doing properly — everything after it assumes you have it.';
+  const parts = Object.keys(PARTS).map(p => {
+    const ids = T.order.filter(i => Q[i].p === p);
+    const ok = ids.filter(i => T.answers[i] === Q[i].a).length;
+    return {p, ok, n: ids.length};
+  }).filter(x => x.n);
+  $('#doneBreak').innerHTML = parts.map(x => `<div class="bd">
+      <span class="lbl"><b>Part ${x.p}</b> \u00b7 ${PARTS[x.p]}</span>
+      <span class="bar"><i style="width:${x.n ? x.ok / x.n * 100 : 0}%"></i></span>
+      <span class="n">${x.ok}/${x.n}</span></div>`).join('');
+  const missed = T.order.filter(i => T.answers[i] !== Q[i].a);
+  $('#retryWrong').classList.toggle('hide', !missed.length);
+  $('#retryWrong').onclick = () => testStart(missed);
+  $('#testDone').scrollIntoView({block: 'start'});
+}
+$('#testStart').addEventListener('click', () => testStart());
+$('#testQuit').addEventListener('click', testFinish);
+$('#retryAll').addEventListener('click', () => testStart());
+$('#reviewAll').addEventListener('click', () => {
+  $('#reviewBox').innerHTML = `<h3 style="margin:30px 0 14px">Every question, with the reasoning</h3>` +
+    Q.map((q, i) => `<div class="panel">
+      <span class="qnum">Q${i + 1}</span><span class="qpart">Part ${q.p}</span>
+      <p class="qtext" style="font-size:1rem">${esc(q.q)}</p>
+      <p style="margin:6px 0 0"><b>${'ABCD'[q.a]}.</b> ${esc(q.opts[q.a])}</p>
+      <p style="margin:6px 0 0;color:var(--ink2);font-size:.94rem">${esc(q.why)}</p>
+    </div>`).join('');
+  $('#reviewBox').scrollIntoView({block: 'start'});
+});
+</script>
+</body>
+</html>
