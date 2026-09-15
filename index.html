@@ -113,6 +113,9 @@ section > .wrap > h2{font-size:clamp(1.6rem,4vw,2.2rem); margin-bottom:6px}
 .note b{font-family:"Space Grotesk",sans-serif}
 .warn{border-left-color:var(--amber); background:#FFF6E6}
 .win{border-left-color:var(--mint); background:rgba(17,141,119,.07)}
+.analogy{border-left:4px solid var(--amber); background:#FFF6E6; border-radius:0 10px 10px 0; padding:16px 18px; margin:0 0 20px}
+.analogy h4{font-size:1rem; margin-bottom:6px; color:#8A5B08}
+.analogy p{margin:0; font-size:.96rem; color:#5D4208}
 
 /* ---------- gate cards ---------- */
 .gates{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px}
@@ -262,10 +265,11 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
 <!-- ============================ HERO ============================ -->
 <header class="hero"><div class="wrap">
   <div class="eyebrow">TOPIC 02 · COMPUTER ARCHITECTURE</div>
-  <h1>Logic gates &amp; truth tables</h1>
-  <p class="lede">A computer has no idea what a number is. It has switches. Millions of them, each either on or off,
-  wired into little decision-makers called gates. Everything else — your music, your bank balance, this page — is built
-  on top of that. Flip the switches below and watch a gate think.</p>
+  <h1>Teaching a switch to think</h1>
+  <p class="lede">A computer has no idea what a number is. It has switches — billions of them, each one simply on
+  or off, wired together into tiny decision-makers called gates. That is the entire inventory. Your music, your bank
+  balance, every photo on your phone, this page you are reading: all of it is built on switches that can only answer
+  yes or no. Flip the two below and watch one of them decide something.</p>
 
   <div class="bench">
     <div class="bench-grid">
@@ -295,21 +299,31 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
 
 <!-- ============================ GATES ============================ -->
 <section id="gates"><div class="wrap">
-  <h2>The seven gates</h2>
-  <p class="sub">Three of these are the real building blocks — AND, OR and NOT. The other four are shortcuts built from
-  those three, common enough to earn their own symbols. Click any row of a truth table to send those inputs through the gate.</p>
+  <h2>Seven gates, three of which matter</h2>
+  <p class="sub">Only three of these are real: AND, OR and NOT. The other four are combinations of those three that
+  came up so often somebody got tired of drawing them out and gave each one its own symbol. Click any row of any truth
+  table to send those exact inputs through the gate at the top of the page.</p>
+  <div class="analogy">
+    <h4>Every gate is a bouncer with exactly one rule</h4>
+    <p>An AND bouncer needs to see both your ticket and your ID — one without the other and you are not coming in.
+    An OR bouncer will take either. A NOT bouncer is the contrary one who lets you in only if you are <em>not</em> on
+    the list. That is the entire personality of each gate: one rule, applied without judgement, a billion times a
+    second, forever. No gate has ever had a bad day or made an exception for a friend.</p>
+  </div>
   <div class="gates" id="gateGrid"></div>
 
-  <div class="note"><b>The one habit that saves you.</b> A gate is defined by its truth table, not by its shape.
-  If you ever forget what NOR does, don't try to remember the picture — write the OR table, then flip every output. Same for NAND.
-  XNOR is XOR flipped. Four gates, one trick.</div>
+  <div class="note"><b>Stop memorising four extra gates.</b> A gate is defined by its truth table, never by its shape.
+  So if you blank on NOR in an exam, do not sit there trying to picture the symbol. Write out the OR table — which
+  you definitely know — and flip every single output. That is NOR. Do the same to AND and you have NAND. Flip XOR
+  and you have XNOR. Four gates you thought you had to learn, one trick, thirty seconds.</div>
 </div></section>
 
 <!-- ============================ DOJO ============================ -->
 <section id="dojo"><div class="wrap">
-  <h2>Truth table dojo</h2>
-  <p class="sub">Before you can build circuits from truth tables, you have to be fast at filling them in.
-  Click a cell to flip it between 0 and 1. You get the expression — you produce the output column.</p>
+  <h2>Get fast at these</h2>
+  <p class="sub">Everything in the rest of this topic depends on filling in a truth table quickly and without
+  second-guessing yourself. So: here is the expression, you produce the output column. Click any cell to cycle it
+  between 0, 1 and blank. Do a few until it stops feeling like work.</p>
 
   <div class="panel">
     <div class="exsel" id="dojoSel"></div>
@@ -328,17 +342,27 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
     <div class="feedback" id="dojoFb"></div>
   </div>
 
-  <div class="note warn"><b>Reading order matters.</b> <span class="mono">A'B</span> means
-  <span class="mono">(NOT A) AND B</span> — the prime binds tight to its own letter and nothing else.
-  It does <em>not</em> mean NOT (A AND B); that would be written <span class="mono">(AB)'</span> with the bracket.</div>
+  <div class="note warn"><b>This one trips almost everybody once.</b> <span class="mono">A'B</span> means
+  <span class="mono">(NOT A) AND B</span>. That little prime sticks to its own letter like glue and touches nothing
+  else. It does <em>not</em> mean NOT (A AND B) — if that is what you wanted you would need a bracket:
+  <span class="mono">(AB)'</span>. One tiny mark, completely different circuit. Read it carefully once now and save
+  yourself a mark later.</div>
 </div></section>
 
 <!-- ============================ BUILDER ============================ -->
 <section id="builder"><div class="wrap">
-  <h2>The circuit builder</h2>
-  <p class="sub">This is the skill the exam keeps asking for: someone hands you a truth table, you hand back a circuit.
-  There is a drill that works every single time. Five steps, same order, no exceptions.</p>
+  <h2>The drill</h2>
+  <p class="sub">This is the thing exams ask for over and over: somebody hands you a truth table and you hand back a
+  working circuit. Good news — there is a routine that works every single time, on any table you will ever be
+  given. Five steps, same order, no thinking required once you know it.</p>
 
+  <div class="analogy">
+    <h4>You are a detective, not a mathematician</h4>
+    <p>Somebody hands you a list of every situation in which the alarm went off. Your job is to build a machine that
+    watches for exactly those situations and nothing else. So you build one detector per situation — each one
+    watching for its own precise combination — and then you wire all the detectors to the same bell. If any
+    detector spots its situation, the bell rings. That is the entire method below, dressed up in letters.</p>
+  </div>
   <div class="panel" style="border-left:4px solid var(--hot)">
     <h3 style="margin-bottom:14px">SCAN · MARK · WRITE · SUM · DRAW</h3>
     <ol style="margin:0;padding-left:20px;color:var(--ink2);font-size:.97rem">
@@ -348,9 +372,12 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
       <li><b style="color:var(--ink)">Sum</b> all those terms with OR (<span class="mono">+</span>). That is your Boolean function, in sum-of-products form.</li>
       <li><b style="color:var(--ink)">Draw</b> it: inverters first, then one AND gate per term, then one OR gate collecting them all.</li>
     </ol>
-    <div class="note win" style="margin-bottom:0"><b>Why it always works.</b> Each 1-row is a situation that should switch the output on.
-    An AND term is a detector for exactly one situation — it fires for that row and no other. OR them together and you have built a circuit that says
-    "switch on if situation 1 happens, <em>or</em> situation 2, <em>or</em> situation 3." That is literally what the truth table asked for.</div>
+    <div class="note win" style="margin-bottom:0"><b>Why this can never fail.</b> Think about what a row with a 1 in
+    it actually is: a situation where the output is supposed to come on. And an AND term is a detector — it fires
+    for one exact situation and stays silent for every other. So build one detector per situation, wire them all into
+    an OR, and you have made a circuit that says "come on if situation 1 happens, <em>or</em> situation 2, <em>or</em>
+    situation 3." Read that back. It is word for word what the truth table was asking for. There is no cleverness here,
+    which is exactly why it always works.</div>
   </div>
 
   <div class="exsel" id="exSel"></div>
@@ -374,9 +401,9 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
 
 <!-- ============================ REVERSE ============================ -->
 <section id="reverse"><div class="wrap">
-  <h2>Working backwards</h2>
-  <p class="sub">Exams run the drill in both directions. Given a circuit, name the function. Given a function, produce the table.
-  Same knowledge, read the other way.</p>
+  <h2>Now run it backwards</h2>
+  <p class="sub">Exams like to run the drill the other way round: here is a circuit, tell me the function. It is the
+  same knowledge read backwards, and it is easier than it looks once you stop trying to do it in your head.</p>
 
   <div class="panel">
     <h3 style="margin-bottom:6px">Read the circuit</h3>
@@ -387,17 +414,27 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
     <div class="btnrow"><button class="btn ghost" id="revNext">Another circuit</button></div>
   </div>
 
-  <div class="note"><b>Labelling as you go is the whole technique.</b> Students lose marks by trying to hold three gate outputs in their head at once.
-  Write <span class="mono">A'</span> on the wire leaving the inverter. Write <span class="mono">A'C</span> on the wire leaving the AND gate.
-  By the time you reach the last gate there is nothing left to work out.</div>
+  <div class="note"><b>Write on the wires. That is the whole technique.</b> People lose marks here for one reason:
+  they try to hold three gate outputs in their head at once and something falls out. So do not. Write
+  <span class="mono">A'</span> on the wire coming out of the inverter. Write <span class="mono">A'C</span> on the wire
+  coming out of the AND gate. Keep going. By the time you reach the last gate, the answer is already written on the
+  page in front of you and there is nothing left to work out.</div>
 </div></section>
 
 <!-- ============================ SPOT THE BUG ============================ -->
 <section id="bug"><div class="wrap">
-  <h2>Spot the bug</h2>
-  <p class="sub">Here is a worked example exactly as it appears in a textbook. The function and the truth table beside it do not agree.
-  Find the rows that are wrong before you reveal the answer.</p>
+  <h2>Even textbooks get it wrong</h2>
+  <p class="sub">This is a worked example copied straight out of a textbook, and it is wrong. The function and the
+  table printed next to it do not agree with each other. See if you can catch it before you reveal the answer —
+  and notice that being able to do this is worth more than being able to recite anything.</p>
 
+  <div class="analogy">
+    <h4>Trust nothing, check everything</h4>
+    <p>A textbook is a thing a tired person wrote at two in the morning, and this one slipped. The expression says one
+    thing and the table printed beside it says another. The useful skill here is not catching this particular mistake
+    — it is getting into the habit of checking that two pieces of information actually agree before you build
+    anything on top of them. That habit will serve you longer than any single fact on this page.</p>
+  </div>
   <div class="panel">
     <div class="two">
       <div>
@@ -417,8 +454,9 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
 <!-- ============================ TEST ============================ -->
 <section id="test"><div class="wrap">
   <h2>Unit test</h2>
-  <p class="sub">Thirty questions across four parts. Nothing is recorded anywhere — this is yours to fail as many times as you need.
-  Every answer comes with a worked explanation, and at the end you get a breakdown by part so you know exactly what to go back to.</p>
+  <p class="sub">Thirty questions. Nothing is recorded anywhere and nobody sees it but you, so fail it as many times
+  as you like. Every answer comes with a proper worked explanation, and the breakdown at the end tells you exactly
+  which section to go back and poke at.</p>
 
   <div id="testIntro" class="panel">
     <h3 style="margin-bottom:10px">Before you start</h3>
@@ -474,19 +512,19 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 /* ---------------- gate definitions ---------------- */
 const GATES = {
   AND : {n:2, sym:'·',  expr:'Z = A · B',      f:(a,b)=>a&b,
-         why:'Both conditions, no excuses. The chest opens only with the key AND the scroll.'},
+         why:'Both, or nothing. The chest opens with the key AND the scroll \u2014 turning up with one is turning up with none.'},
   OR  : {n:2, sym:'+',  expr:'Z = A + B',      f:(a,b)=>a|b,
-         why:'Either will do. Dessert if you finish the vegetables OR the main.'},
+         why:'Either will do, and both is fine too. Dessert if you finish the vegetables OR the rice.'},
   NOT : {n:1, sym:"'",  expr:"Z = A'",         f:a=>a?0:1,
-         why:'Whatever goes in, the opposite comes out. The alarm sounds when the door is NOT closed.'},
+         why:'Whatever goes in, the opposite comes out. The alarm sounds when the door is NOT closed \u2014 it is the contrary one.'},
   NAND: {n:2, sym:'↑',  expr:'Z = (A · B)\'',  f:(a,b)=>(a&b)?0:1,
-         why:'AND with the answer flipped. You can game unless there is homework AND a dirty room.'},
+         why:'AND with the answer flipped. You can play unless there is homework AND a room to clean.'},
   NOR : {n:2, sym:'↓',  expr:'Z = (A + B)\'',  f:(a,b)=>(a|b)?0:1,
-         why:'OR with the answer flipped. Output is on only when everything is off.'},
+         why:'OR with the answer flipped. It comes on only when absolutely everything else is off.'},
   XOR : {n:2, sym:'⊕',  expr:'Z = A ⊕ B',      f:(a,b)=>a^b,
-         why:'One or the other, never both. Soup or salad — pick one.'},
+         why:'One or the other, never both. Soup or salad. Pick one, and do not try it.'},
   XNOR: {n:2, sym:'⊙',  expr:'Z = (A ⊕ B)\'',  f:(a,b)=>(a^b)?0:1,
-         why:'On when the two inputs agree. Both ready, or both not ready.'}
+         why:'On when the two agree. Both ready, or both not ready \u2014 it does not care which, only that they match.'}
 };
 
 /* ---------------- gate SVG shapes ---------------- */
@@ -791,11 +829,11 @@ function armZone(z) {
    ================================================================= */
 const EX = [
   {title:'Two-switch stage light', vars:['A','B'], out:[0,1,1,0], outName:'L',
-   story:'A stage light is wired to two switches at opposite ends of the hall. The light must come on when exactly one switch is up. If both are up, or both are down, it stays off.'},
+   story:'A stage light is wired to two switches at opposite ends of the hall, so anyone can flip it from either door. The light comes on when exactly one switch is up. Both up, or both down, and it stays off. You have this wiring at home on your stairs.'},
   {title:'Three-sensor tally', vars:['x','y','z'], out:[0,1,0,1,0,0,0,1], outName:'F',
-   story:'Straight from the textbook. Three inputs, three rows that produce a 1. Do not try to spot a pattern — run the drill and the answer falls out.'},
+   story:'Straight out of the textbook. Three inputs, three rows that come out as 1. Do not sit there hunting for a clever pattern — just run the drill and the answer falls out on its own.'},
   {title:'Ferry ramp alarm', vars:['G','R','M'], out:[0,0,1,1,1,0,0,0], outName:'A',
-   story:'G is 1 when the gate is open, R is 1 when the ramp is down, M is 1 when motion is detected. The alarm should sound in exactly three of the eight situations.'},
+   story:'The ferry to Nevis. G is 1 when the gate is open, R is 1 when the ramp is down, M is 1 when the sensor sees movement. The alarm has to sound in exactly three of the eight possible situations \u2014 work out which from the table, not from guessing.'},
   {title:'The corrected textbook example', vars:['A','C','D'], out:[0,1,1,1,0,1,0,1], outName:'R',
    story:'This is the true table for R = A\u2032·C + D. Five rows output a 1, so you will build five AND terms feeding one OR gate. Slow and steady — the drill does not change just because the table got bigger.'}
 ];
@@ -986,7 +1024,7 @@ $('#bCheck').addEventListener('click', () => {
       fb(true, `<b>${want.length} rows found.</b> Every one of them will become an AND term. The other ${(1 << e.vars.length) - want.length} rows are now irrelevant.`);
       return drawEx();
     }
-    return fb(false, `<b>Not quite.</b> ${missed.length ? `You missed ${missed.length} row${missed.length > 1 ? 's' : ''} where ${e.outName} is 1. ` : ''}${extra.length ? `You selected ${extra.length} row${extra.length > 1 ? 's' : ''} where ${e.outName} is 0. ` : ''}Read down the output column only — ignore the inputs entirely at this step.`);
+    return fb(false, `<b>Close, but not yet.</b> ${missed.length ? `You missed ${missed.length} row${missed.length > 1 ? 's' : ''} where ${e.outName} is 1. ` : ''}${extra.length ? `You selected ${extra.length} row${extra.length > 1 ? 's' : ''} where ${e.outName} is 0. ` : ''}Look only at the output column at this step. Cover the inputs with your hand if it helps — they genuinely do not matter yet.`);
   }
 
   if (B.step === 1) {
@@ -1000,7 +1038,7 @@ $('#bCheck').addEventListener('click', () => {
       fb(true, `<b>Every literal is marked correctly.</b> Notice you never invented anything — the row's own bits told you exactly what to write.`);
       return drawEx();
     }
-    return fb(false, `<b>Check row${bad.length > 1 ? 's' : ''} ${bad.join(', ')}.</b> Go bit by bit: a <span class="mono">1</span> in the input means the plain letter, a <span class="mono">0</span> means the primed letter. It is easy to do this backwards — most people do, once.`);
+    return fb(false, `<b>Check row${bad.length > 1 ? 's' : ''} ${bad.join(', ')}.</b> Go bit by bit: a <span class="mono">1</span> in the input means the plain letter, a <span class="mono">0</span> means the primed letter. Almost everybody does this backwards exactly once, and then never again. Consider this your once.`);
   }
 
   if (B.step === 2) {
@@ -1010,7 +1048,7 @@ $('#bCheck').addEventListener('click', () => {
     const bad = sel.filter(i => B.picks[i] !== termStr(literalsFor(rows[i], e.vars)));
     if (!bad.length) {
       B.done[2] = true; B.step = 3;
-      fb(true, `<b>Correct.</b> Each of those is an AND term — a detector that fires on one row and no other.`);
+      fb(true, `<b>Correct.</b> Each of those is a detector — it fires on its own row and stays completely silent on every other one.`);
       return drawEx();
     }
     const wrongOne = B.picks[bad[0]];
@@ -1053,7 +1091,7 @@ $('#bCheck').addEventListener('click', () => {
       </div>`;
     if (ok) {
       B.done[4] = true; B.cleared[B.ex] = true;
-      fb(true, `<b>Built and verified.</b> Your circuit reproduces all ${1 << e.vars.length} rows of the original table. That is the whole method \u2014 scan, mark, write, sum, draw. It works on any truth table you will ever be given.`);
+      fb(true, `<b>Built and verified.</b> Your circuit reproduces all ${1 << e.vars.length} rows of the original table. That is the whole thing. Scan, mark, write, sum, draw. It will work on any truth table anyone ever puts in front of you, including in an exam, including one with sixteen rows.`);
       $$('.stepbtn').forEach((x, i) => x.dataset.state = (i === 4 ? 'active' : 'done'));
       $('#exSel').innerHTML = EX.map((x, i) =>
         `<button class="exbtn" data-i="${i}" aria-pressed="${i === B.ex}">${i + 1}. ${esc(x.title)} ${B.cleared[i] ? '<span class="tick">\u2713</span>' : ''}</button>`).join('');
@@ -1245,10 +1283,10 @@ function testFinish() {
   $('#doneScore').textContent = `${right}/${asked}`;
   $('#doneGrade').textContent = `${pct}%  \u00b7  grade ${grade(pct)}`;
   $('#doneMsg').textContent = pct >= 85
-    ? 'You can run the drill and read a circuit both ways. Move on to the next topic.'
+    ? 'You can run the drill and read a circuit backwards. That is the hard part of this topic and you have it \u2014 go on to topic 3.'
     : pct >= 65
-      ? 'Solid foundation with gaps. Look at your weakest part below and redo that section of the page before the next class.'
-      : 'Go back to the builder and work all four exercises end to end. This topic is worth doing properly — everything after it assumes you have it.';
+      ? 'Solid, with a couple of gaps. Check your weakest part below and go play with that bit again before next class.'
+      : 'Do not stress about the number. Go back to the builder and work all four exercises end to end, clicking everything. This is the one topic where everything afterwards assumes you have it, so it is worth the extra half hour.';
   const parts = Object.keys(PARTS).map(p => {
     const ids = T.order.filter(i => Q[i].p === p);
     const ok = ids.filter(i => T.answers[i] === Q[i].a).length;
