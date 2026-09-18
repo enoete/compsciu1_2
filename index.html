@@ -11,14 +11,14 @@
 <meta property="og:site_name" content="CS Unit 1 · CFBC">
 <meta name="description" content="Build combinational circuits from truth tables using the SCAN-MARK-WRITE-SUM-DRAW method.">
 <meta name="theme-color" content="#E04B2F">
-<meta name="lesson:duration"   content="90 min">
+<meta name="lesson:duration"   content="95 min">
 <meta name="lesson:difficulty" content="Core">
 <meta name="lesson:objectives" content="7">
 <meta name="lesson:questions"  content="30">
 <meta name="lesson:sections"   content="10">
 <meta name="lesson:topics"     content="AND,OR,NOT,NAND,NOR,XOR,XNOR,Combinational circuits,Sum of products">
 <meta name="lesson:activities" content="Gate bench,Truth table dojo,Circuit builder,Logic.ly lab,Spot the bug,Unit test">
-<meta name="lesson:updated"    content="2026-09-15">
+<meta name="lesson:updated"    content="2026-09-18">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -464,6 +464,49 @@ footer{margin-top:60px; border-top:1px solid var(--line); padding:26px 0 56px; c
     with you. If it does not, the bug is not in Logic.ly — read your own wiring again, one gate at a time, the way
     "Working backwards" below teaches. Predicting first and only then checking is worth more than this one circuit.</div>
   </div>
+
+  <div class="panel" style="border-left:4px solid var(--violet)">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:4px">
+      <h3 style="margin:0">Lab 3 — three inputs this time</h3>
+      <a class="btn accent" href="https://logic.ly/" target="_blank" rel="noopener">Open Logic.ly ↗</a>
+    </div>
+    <p style="font-size:.95rem;color:var(--ink2);margin:10px 0 18px">Every circuit so far has had two inputs. Real
+    ones rarely stop there — and next topic, every adder you build takes at least three. So before that arrives,
+    build one now. Back in the drill you solved the <b>ferry ramp alarm</b>: G is the gate, R is the ramp, M is the
+    movement sensor, and the alarm sounds in exactly three of the eight situations. Wire the SOP circuit you derived
+    for it.</p>
+
+    <ol style="margin:0 0 18px;padding-left:20px;color:var(--ink2);font-size:.96rem">
+      <li>Open Logic.ly. Drag out three <b>input switches</b>: <span class="mono">G</span>, <span class="mono">R</span>,
+      <span class="mono">M</span>.</li>
+      <li>Drag out three <b>NOT</b> gates, one on each input, giving you G', R' and M' as well.</li>
+      <li>Drag out three <b>3-input AND</b> gates (Logic.ly lets you resize a gate to add a third input pin).
+      Wire them: AND1 = G', R, M'. AND2 = G', R, M. AND3 = G, R', M'.</li>
+      <li>Drag out one <b>3-input OR</b> gate. Feed it the outputs of all three AND gates.</li>
+      <li>Drag out one <b>output light</b> and wire it to the OR gate.</li>
+      <li>Work through all eight G, R, M combinations and fill in what the lamp shows below.</li>
+    </ol>
+
+    <div class="two">
+      <div id="labTable2"></div>
+      <div>
+        <p style="font-size:.9rem;color:var(--ink2);margin-bottom:10px">Same as before — click a cell to cycle it
+        0 → 1 → blank.</p>
+        <div class="btnrow" style="margin-top:0">
+          <button class="btn accent" id="lab2Check">Check my build</button>
+          <button class="btn ghost" id="lab2Clear">Clear</button>
+        </div>
+        <div class="feedback" id="lab2Fb"></div>
+      </div>
+    </div>
+
+    <div class="note win"><b>Count what three inputs actually cost you.</b> Two inputs needed 2-input gates
+    throughout. Three inputs needed the same gates widened to three pins, one extra inverter, and one extra AND
+    term — but the method (SCAN · MARK · WRITE · SUM · DRAW) never changed at all. That is the whole point of
+    learning it as a routine instead of a trick: it does not care how many inputs show up. Topic 3 hands you a
+    half adder and a full adder — three-input circuits wearing different names — and you already know how to
+    build them.</div>
+  </div>
 </div></section>
 
 <!-- ============================ REVERSE ============================ -->
@@ -716,7 +759,9 @@ const DOJO = [
   {expr:"Z = x·y + z'", vars:['x','y','z'], f:(x,y,z)=>(x&y) | (z?0:1),
    hint:"Do x·y, do z', then OR them. z' alone is enough to make the output 1."},
   {expr:"Z = (A·B)' + C", vars:['A','B','C'], f:(A,B,C)=>((A&B)?0:1) | C,
-   hint:"NAND of A and B first, then OR with C. The only 0 rows need A·B = 1 and C = 0."}
+   hint:"NAND of A and B first, then OR with C. The only 0 rows need A·B = 1 and C = 0."},
+  {expr:"Z = A·B + B·C + A·C", vars:['A','B','C'], f:(A,B,C)=>(A&B) | (B&C) | (A&C),
+   hint:"Three AND terms, all ORed — it is 1 whenever at least two of the three inputs are 1. Remember this exact shape: next topic it reappears with a name, as a full adder's carry-out."}
 ];
 let dojoI = 0, dojoAns = [];
 
@@ -1422,6 +1467,47 @@ $('#lab1Check').addEventListener('click', () => {
   }
 });
 lab1Render();
+
+/* =================================================================
+   LOGIC.LY LAB — self-check table (Lab 3: ferry ramp alarm, 3 inputs)
+   ================================================================= */
+let lab2Ans = Array(8).fill(null);
+function lab2Render() {
+  $('#labTable2').innerHTML = ttHTML(['G', 'R', 'M'], lab2Ans, {editable: true});
+}
+$('#labTable2').addEventListener('click', e => {
+  const td = e.target.closest('[data-edit]'); if (!td) return;
+  const i = +td.dataset.edit;
+  lab2Ans[i] = lab2Ans[i] === null ? 0 : (lab2Ans[i] === 0 ? 1 : null);
+  td.textContent = lab2Ans[i] === null ? '·' : lab2Ans[i];
+});
+$('#lab2Clear').addEventListener('click', () => {
+  lab2Ans = Array(8).fill(null); lab2Render(); $('#lab2Fb').className = 'feedback';
+});
+$('#lab2Check').addEventListener('click', () => {
+  const truth = [0, 0, 1, 1, 1, 0, 0, 0]; // same table as the ferry ramp alarm exercise
+  const blanks = lab2Ans.filter(x => x === null).length;
+  const fb = $('#lab2Fb');
+  if (blanks) {
+    fb.className = 'feedback show bad';
+    fb.innerHTML = `<b>${blanks} row${blanks > 1 ? 's' : ''} still blank.</b> Read the lamp in Logic.ly for that
+      exact G, R, M combination and fill it in.`;
+    return;
+  }
+  const wrong = truth.map((t, i) => (lab2Ans[i] === t ? -1 : i)).filter(i => i >= 0);
+  if (!wrong.length) {
+    fb.className = 'feedback show good';
+    fb.innerHTML = `<b>Matches on all 8 rows.</b> That is a correct build of the ferry ramp alarm — three
+      3-input AND gates and one 3-input OR gate, exactly as derived.`;
+  } else {
+    fb.className = 'feedback show bad';
+    fb.innerHTML = `<b>${wrong.length} row${wrong.length > 1 ? 's' : ''} disagree with the target.</b> With three
+      inputs there are three places to mis-wire instead of one — check each AND gate's three inputs against
+      the term it is supposed to detect (G'RM', G'RM, or GR'M') one at a time, the same way "Working backwards"
+      teaches you to read a circuit gate by gate.`;
+  }
+});
+lab2Render();
 </script>
 </body>
 </html>
